@@ -1,24 +1,24 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Date, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm import validates
+from sqlalchemy.sql import func
 from .database import Base
 import re, os, hashlib, binascii
 
-
-
+class GenderEnum(Enum):
+    male = "мужской"
+    female = "женский"
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+    profile_picture = Column(String)
+    pin_code = Column(String, nullable=False)
+    pin_code_salt = Column(String, nullable=False)
+    registration_date = Column(DateTime, default=func.now())
 
-    id = Column(Integer, primary_key=True, index=True)
-    phone_number = Column(String)
-    pin_code = Column(String)
-    pin_code_salt = Column(String)
-    name = Column(String)
-    email = Column(String, unique=True, index=True)
-
-    collections = relationship("Collection", back_populates="owner")
-    complaints = relationship("Complaint", back_populates="user")
 
     @validates('phone_number')
     def validate_phone_number(self, phone_number):
@@ -34,7 +34,6 @@ class User(Base):
         self.pin_code = binascii.hexlify(pwdhash).decode('utf-8')
         self.pin_code_salt = salt.decode('utf-8')
 
-
     def verify_pin_code(self, pin_code):
         # Получение хеш-значения и соли из базы данных
         stored_pin_code = self.pin_code
@@ -42,6 +41,33 @@ class User(Base):
         # Хеширование введенного пин-кода
         pwdhash = hashlib.pbkdf2_hmac('sha512', pin_code.encode('utf-8'), stored_pin_code_salt, 100000)
         return stored_pin_code == binascii.hexlify(pwdhash).decode('utf-8')
+
+class Recipient(User):
+    __tablename__ = 'recipients'
+    id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    surname = Column(String, nullable=False)
+    patronymic = Column(String)
+    address = Column(String, nullable=False)
+    birth_date = Column(Date, nullable=False)
+    email = Column(String, nullable=False)
+    gender = Column(Enum(GenderEnum), nullable=False)
+
+
+
+class Donor(User):
+    __tablename__ = 'donors'
+    id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    collections = relationship("Collection", back_populates="owner")
+    complaints = relationship("Complaint", back_populates="user")
+
+class User(Base):
+
+
+    email = Column(String, unique=True, index=True)
+
+
+
+
 
 
 
