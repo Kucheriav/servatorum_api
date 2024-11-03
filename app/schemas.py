@@ -1,41 +1,81 @@
 from pydantic import BaseModel
-from typing import List, Optional
-
+from datetime import datetime, date
+from typing import Optional, List
 
 class UserBase(BaseModel):
-    name: str
-    email: str
-
-
-class UserCreate(UserBase):
-    pass
-
+    first_name: str
+    phone: str
 
 class User(UserBase):
     id: int
+    profile_picture: Optional[str]
+    registration_date: datetime
     collections: List[int] = []
     complaints: List[int] = []
 
     class Config:
         orm_mode = True
 
+class RecipientBase(BaseModel):
+    last_name: str
+    address: str
+    birth_date: date
+    email: str
+    gender: str
 
-class FundBase(BaseModel):
-    name: str
+class Recipient(RecipientBase):
+    patronymic: Optional[str]
 
-
-class FundCreate(FundBase):
+class RecipientFull(User, Recipient):
     pass
 
+class Donor(User):
+    pass
 
-class Fund(FundBase):
+class CharitySphereBase(BaseModel):
+    name: str
+
+class CharitySphere(CharitySphereBase):
     id: int
-    collections: List[int] = []
-    posts: List[int] = []
+    funds: List['Fund'] = []
 
     class Config:
         orm_mode = True
 
+class FundBase(BaseModel):
+    name: str
+    admin_user_id: int
+    inn: str
+    kpp: str
+    address: str
+    phone: str
+    email: Optional[str]
+    website: Optional[str]
+
+class Fund(FundBase):
+    id: int
+    profile_picture: Optional[str]
+    charity_spheres: List[CharitySphere] = []
+    fundraisings: List['Fundraising'] = []
+    posts: List['Post'] = []
+    accounts: List['Account'] = []
+
+    class Config:
+        orm_mode = True
+
+class AccountBase(BaseModel):
+    name: str
+    bic: str
+    ks_number: str
+    account_number: str
+
+class Account(AccountBase):
+    id: int
+    fund_id: int
+    fund: 'Fund'
+
+    class Config:
+        orm_mode = True
 
 class CollectionBase(BaseModel):
     title: str
