@@ -1,14 +1,28 @@
 from fastapi import FastAPI
-from . import models
-from .database import engine
-from .routers import users, funds, collections, posts, complaints
+from app.routers import user_routes
+from app.db_management import init_db
 
-models.Base.metadata.create_all(bind=engine)
 
+init_db()
 app = FastAPI()
+app.include_router(user_routes.router, prefix="/users", tags=["users"])
 
-app.include_router(users.router, prefix="/users", tags=["users"])
-app.include_router(funds.router, prefix="/funds", tags=["funds"])
-app.include_router(collections.router, prefix="/collections", tags=["collections"])
-app.include_router(posts.router, prefix="/posts", tags=["posts"])
-app.include_router(complaints.router, prefix="/complaints", tags=["complaints"])
+
+
+
+#
+# {'project': [{'alembic':'содержимое папки alembic'},
+#              {'app':[
+#                  {'crud':['__init__.py', 'user_crud.py']},
+#                  {'models':['__init__.py','user.py']},
+#                  {'routers':['user_routers.py']},
+#                  {'schemas':['__init__.py', 'user.py']},
+#                  {'test_scripts':['create_user_request_test.py']},
+#                  'database.py',
+#                  'main.py'
+#              ]},
+#              'alembic.ini',
+#             'examples.py',
+#              'requirements.txt'
+#              ]
+# }
