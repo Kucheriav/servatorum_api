@@ -1,12 +1,9 @@
 fastapi
-uvicorn
 sqlalchemy
 asyncpg
 pydantic
 alembic
-psycopg2
-dnspython
 email_validator
-httpcore
-httpx
 pytest
+pydantic-settings
+httpx

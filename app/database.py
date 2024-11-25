@@ -1,45 +1,38 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost/servatorium_test_db"
-
-# engine = create_async_engine(DATABASE_URL, echo=True)
-engine = create_engine(DATABASE_URL, echo=True)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# AsyncSessionLocal = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+from sqlalchemy.orm import DeclarativeBase, declared_attr, Mapped, mapped_column
+from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
+from sqlalchemy import Integer, func
+from datetime import datetime
+from app.config import settings
 
 
-Base = declarative_base()
+DATABASE_URL = settings.get_db_url()
+engine = create_async_engine(url=DATABASE_URL)
+async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 
-class Database:
-    def __init__(self):
-        self.session = SessionLocal()
+def connection(method):
+    async def wrapper(*args, **kwargs):
+        async with async_session_maker() as session:
+            try:
+                # Явно не открываем транзакции, так как они уже есть в контексте
+                return await method(*args, session=session, **kwargs)
+            except Exception as e:
+                await session.rollback()
+                raise e
+            finally:
+                await session.close()
 
-    def init_db(self):
-        Base.metadata.create_all(bind=engine)
+    return wrapper
 
-    def drop_db(self):
-        Base.metadata.drop_all(bind=engine)
+# Базовый класс для всех моделей
+class Base(AsyncAttrs, DeclarativeBase):
+    __abstract__ = True
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
-    def recreate_db(self):
-        self.drop_db()
-        print('db dropped!')
-        self.init_db()
+    @declared_attr.directive
+    def __tablename__(self) -> str:
+        return self.__name__.lower() + 's'
 
-    def close(self):
-        self.session.close()
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
-
-    def add(self, obj):
-        self.session.add(obj)
-
-    def commit(self):
-        self.session.commit()

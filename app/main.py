@@ -3,7 +3,7 @@ from app.routers import user_routes
 from app.db_management import init_db
 
 
-init_db()
+# init_db()
 app = FastAPI()
 app.include_router(user_routes.router, prefix="/users", tags=["users"])
 
