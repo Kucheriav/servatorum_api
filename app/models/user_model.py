@@ -47,19 +47,30 @@ class User(Base):
         return phone_number
 
 
-class UserRelations(Base):
+class UserCompanyRelation(Base):
+    id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     company_id = Column(Integer, ForeignKey('legal_entity.id'))
 
 
 class UserMeta(Base):
+    id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     prefer_help = Column(String)
     achieves = Column(String)
 
 
-class UserDonations(Base):
+class UserDonation(Base):
+    id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     fundraising_id = Column(Integer, ForeignKey('fundraisings.id'))
     amount = Column(Float)
     date = Column(DateTime)
+
+
+class UserToken(Base):
+    id = Column(Integer, primary_key=True)
+    token = Column(String)
+    refresh_token = Column(String)
+    valid_before = Column(DateTime)
+    user_id = Column(Integer, ForeignKey('users.id'))

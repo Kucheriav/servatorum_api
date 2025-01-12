@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date, Enum, check
 from app.database import Base
 
 
@@ -13,9 +13,15 @@ class Fundraising(Base):
     owner_id = Column(Integer, ForeignKey('users.id'))
     fund_id = Column(Integer, ForeignKey('funds.id'))
 
+    __table_args__ = (
+        check('start_date >= CURRENT_DATE'),
+        check('finish_date >= CURRENT_DATE'),
+        check('finish_date > start_date'),
+    )
 
 class FundraisingFiles(Base):
     id = Column(Integer, primary_key=True, index=True)
+    fundrise_id = Column(Integer, ForeignKey('users.id'))
     name = Column(String)
     path = Column(String)
     file_type = Column(Enum("doc", "photo", name="file_type_enum"))

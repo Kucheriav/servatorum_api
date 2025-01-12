@@ -14,9 +14,9 @@ app.include_router(user_routes.router, prefix="/users", tags=["users"])
 # {'project': [{'alembic':'содержимое папки alembic'},
 #              {'app':[
 #                  {'crud':['__init__.py', 'user_crud.py']},
-#                  {'models':['__init__.py','user.py']},
+#                  {'models':['__init__.py','user_model.py']},
 #                  {'routers':['user_routers.py']},
-#                  {'schemas':['__init__.py', 'user.py']},
+#                  {'schemas':['__init__.py', 'user_model.py']},
 #                  {'test_scripts':['create_user_request_test.py']},
 #                  'database.py',
 #                  'main.py'

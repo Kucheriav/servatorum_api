@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 from app.main import app
-from app.models.user import User
+from app.models.user_model import User
 from app.database import connection
 
 
