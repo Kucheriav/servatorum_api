@@ -12,7 +12,7 @@ legal_entity_crud = LegalEntityCRUD()
 @router.post("/create_legal_entity", response_model=LegalEntityCreate)
 async def create_legal_entity(legal_entity: LegalEntityCreate):
     try:
-        return legal_entity_crud.create_legal_entity(legal_entity)
+        return await legal_entity_crud.create_legal_entity(legal_entity)
     # если не проходим по схеме Pydantic
     except ValidationError as e:
         errors = e.errors()
@@ -31,7 +31,7 @@ async def create_legal_entity(legal_entity: LegalEntityCreate):
 
 @router.get("/get_legal_entity/{legal_entity_id}")
 async def get_legal_entity(legal_entity_id: int):
-    legal_entity = legal_entity_crud.get_legal_entity(legal_entity_id)
+    legal_entity = await legal_entity_crud.get_legal_entity(legal_entity_id)
     if legal_entity:
         return legal_entity
     raise HTTPException(status_code=404, detail="Legal entity not found")
@@ -39,7 +39,7 @@ async def get_legal_entity(legal_entity_id: int):
 
 @router.patch("/patch_legal_entity/{legal_entity_id}", response_model=LegalEntityPatch)
 async def patch_legal_entity(legal_entity_id: int, legal_entity_params_to_patch: LegalEntityPatch):
-    patched_legal_entity = legal_entity_crud.patch_legal_entity(legal_entity_id, legal_entity_params_to_patch)
+    patched_legal_entity = await legal_entity_crud.patch_legal_entity(legal_entity_id, legal_entity_params_to_patch)
     if patched_legal_entity:
         return patched_legal_entity
     raise HTTPException(status_code=404, detail="Legal entity not found")
@@ -47,6 +47,6 @@ async def patch_legal_entity(legal_entity_id: int, legal_entity_params_to_patch:
 
 @router.delete("/delete_legal_entity/{legal_entity_id}")
 async def delete_legal_entity(legal_entity_id: int):
-    if legal_entity_crud.delete_legal_entity(legal_entity_id):
+    if await legal_entity_crud.delete_legal_entity(legal_entity_id):
         return {"message": "Legal entity deleted"}
     raise HTTPException(status_code=404, detail="Legal entity not found")

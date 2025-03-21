@@ -12,7 +12,7 @@ fundraising_crud = FundraisingCRUD()
 @router.post("/create_fundraising", response_model=FundraisingCreate)
 async def create_fundraising(fundraising: FundraisingCreate):
     try:
-        return fundraising_crud.create_fundraising(fundraising)
+        return await fundraising_crud.create_fundraising(fundraising)
     # если не проходим по схеме Pydantic
     except ValidationError as e:
         errors = e.errors()
@@ -29,17 +29,25 @@ async def create_fundraising(fundraising: FundraisingCreate):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/get_fundraising/{fundraising_id}")
+@router.get("/get_fundraising/{fundraising_id}", response_model=FundraisingResponce)
 async def get_fundraising(fundraising_id: int):
-    fundraising = fundraising_crud.get_fundraising(fundraising_id)
+    fundraising = await fundraising_crud.get_fundraising(fundraising_id)
     if fundraising:
         return fundraising
     raise HTTPException(status_code=404, detail="Fundraising not found")
 
 
+@router.get("/get_fundraisings_pages", response_model=FundraisingPaginationResponse)
+async def get_fundraisings(page: int = 1, page_size: int = 10):
+    result = await fundraising_crud.get_fundraisings_paginated(page=page, page_size=page_size)
+    if result:
+        return result
+    raise HTTPException(status_code=404, detail="Fundraising not found")
+
+
 @router.patch("/patch_fundraising/{fundraising_id}", response_model=FundraisingPatch)
 async def patch_fundraising(fundraising_id: int, fundraising_params_to_patch: FundraisingPatch):
-    patched_fundraising = fundraising_crud.patch_fundraising(fundraising_id, fundraising_params_to_patch)
+    patched_fundraising = await fundraising_crud.patch_fundraising(fundraising_id, fundraising_params_to_patch)
     if patched_fundraising:
         return patched_fundraising
     raise HTTPException(status_code=404, detail="Fundraising not found")
@@ -47,6 +55,6 @@ async def patch_fundraising(fundraising_id: int, fundraising_params_to_patch: Fu
 
 @router.delete("/delete_fundraising/{fundraising_id}")
 async def delete_fundraising(fundraising_id: int):
-    if fundraising_crud.delete_fundraising(fundraising_id):
+    if await fundraising_crud.delete_fundraising(fundraising_id):
         return {"message": "Fundraising deleted"}
     raise HTTPException(status_code=404, detail="Fundraising not found")

@@ -2,7 +2,7 @@ from app.database import connection
 from app.models.fundraising_model import Fundraising
 from app.schemas.fundraising_schema import *
 from app.errors_custom_types import *
-
+from sqlalchemy import func
 
 
 #TODO manage with raised amount. must be zero as created
@@ -29,6 +29,24 @@ class FundraisingCRUD:
             return fundraising
         else:
             raise FundraisingNotFoundError(f"FUNDRAISING_NOT_FOUND: {fundraising_id}")
+
+    @connection
+    async def get_fundraisings_paginated(self, page: int = 1, page_size: int = 10, session=None):
+        offset = (page - 1) * page_size
+        total_items = session.query(func.count(Fundraising.id)).scalar()
+        total_pages = (total_items + page_size - 1) // page_size
+        fundraisings = session.query(Fundraising).offset(offset).limit(page_size).all()
+        fundraisings_get = [FundraisingResponce(**fundraising.__dict__) for fundraising in fundraisings]
+        response = {
+            "page": page,
+            "page_size": page_size,
+            "total_items": total_items,
+            "total_pages": total_pages,
+            "has_next": page < total_pages,
+            "has_previous": page > 1,
+            "fundraisings": fundraisings_get
+        }
+        return response
 
     @connection
     async def patch_fundraising(self, fundraising_id: int, session, **params):

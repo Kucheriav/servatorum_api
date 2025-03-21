@@ -12,7 +12,7 @@ user_crud = UserCRUD()
 @router.post("/create_user", response_model=UserCreate)
 async def create_user(user: UserCreate):
     try:
-        return user_crud.create_user(user)
+        return await user_crud.create_user(user)
     # если не проходим по схеме Pydantic
     except ValidationError as e:
         errors = e.errors()
@@ -27,10 +27,10 @@ async def create_user(user: UserCreate):
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-
+#TODO refactor all GET DELETE routes witout using query-strings into Pydantic models (yes, with 1 parameter)
 @router.get("/get_user/{user_id}")
 async def get_user(user_id: int):
-    user = user_crud.get_user(user_id)
+    user = await user_crud.get_user(user_id)
     if user:
         return user
     raise HTTPException(status_code=404, detail="User not found")
@@ -38,7 +38,7 @@ async def get_user(user_id: int):
 
 @router.patch("/patch_user/{user_id}", response_model=UserPatch)
 async def patch_user(user_id: int, user_params_to_patch: UserPatch):
-    patched_user = user_crud.patch_user(user_id, user_params_to_patch)
+    patched_user = await user_crud.patch_user(user_id, user_params_to_patch)
     if patched_user:
         return patched_user
     raise HTTPException(status_code=404, detail="User not found")
@@ -46,6 +46,6 @@ async def patch_user(user_id: int, user_params_to_patch: UserPatch):
 
 @router.delete("/delete_user/{user_id}")
 async def delete_user(user_id: int):
-    if user_crud.delete_user(user_id):
+    if await user_crud.delete_user(user_id):
         return {"message": "User deleted"}
     raise HTTPException(status_code=404, detail="User not found")

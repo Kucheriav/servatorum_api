@@ -16,12 +16,14 @@ class UserCreate(BaseModel):
     phone: str
     password: str
 
+    @staticmethod
     @field_validator('phone')
     def phone_format(self, v):
         if not re.match(r'^7\d{9}$', v):
             raise ValueError('Неправильный формат телефона')
         return v
 
+    @staticmethod
     @field_validator('password')
     def password_min_length(self, v):
         if len(v) < 8:

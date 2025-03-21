@@ -1,5 +1,5 @@
 from pydantic import BaseModel, field_validator
-from typing import Dict, Any
+from typing import Dict, Any, List
 from datetime import datetime
 
 class FundraisingCreate(BaseModel):
@@ -22,6 +22,22 @@ class FundraisingCreate(BaseModel):
             raise ValueError('Finish date cannot be before today')
         return v
 
+class FundraisingResponce(BaseModel):
+    title: str
+    description: str
+    goal_amount: float
+    raised_amount: float
+    start_date: datetime.date
+    finish_date: datetime.date
+
+class FundraisingPaginationResponse(BaseModel):
+    page: int
+    page_size: int
+    total_items: int
+    total_pages: int
+    has_next: bool
+    has_previous: bool
+    fundraisings: List[FundraisingResponce]
 
 class FundraisingPatch(BaseModel):
     fundraising_id: int
