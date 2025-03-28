@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Enum
-from sqlalchemy import func, check
+from sqlalchemy import func, CheckConstraint
 from app.database import Base
 
 #TODO manage with logo
@@ -10,12 +10,18 @@ class LegalEntity(Base):
     name = Column(String)
     description = Column(String)
     logo = Column(String)
-    inn = Column(String, check='inn REGEXP ^[0-9]{9}$')
-    bik = Column(String, check='bik REGEXP ^[0-9]{9}$')
-    cor_account = Column(String, check='length(cor_account) = 20')
+    inn = Column(String, )
+    bik = Column(String)
+    cor_account = Column(String)
     address = Column(String)
     address_reg = Column(String)
-    phone = Column(String, check='phone REGEXP ^7[0-9]{9}$')
-    phone_helpdesk = Column(String, check='phone_helpdesk REGEXP ^7[0-9]{9}$')
+    phone = Column(String)
+    phone_helpdesk = Column(String)
     entity_type = Column(Enum('company', 'foundation', name='entity_type'))
 
+    __table_args__ = (
+        CheckConstraint('inn REGEXP ^[0-9]{9}$', name='check_inn'),
+        CheckConstraint('length(cor_account) = 20', name='check_cor_account'),
+        CheckConstraint('phone REGEXP ^7[0-9]{9}$', name='check_phone'),
+        CheckConstraint('phone_helpdesk REGEXP ^7[0-9]{9}$', name='check_phone_helpdesk')
+    )

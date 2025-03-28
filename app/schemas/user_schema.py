@@ -18,14 +18,14 @@ class UserCreate(BaseModel):
 
     @staticmethod
     @field_validator('phone')
-    def phone_format(self, v):
+    def phone_format(v):
         if not re.match(r'^7\d{9}$', v):
             raise ValueError('Неправильный формат телефона')
         return v
 
     @staticmethod
     @field_validator('password')
-    def password_min_length(self, v):
+    def password_min_length(v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
         return v
@@ -35,11 +35,12 @@ class UserPatch(BaseModel):
     user_id: int
     params: Dict[str, Any]
 
+    @staticmethod
     @field_validator('params')
-    def validate_individual_fields(self, v):
+    def validate_individual_fields(v):
         for key in v:
             if key == 'phone':
-                self.phone_format(v[key])
+                UserCreate.phone_format(v[key])
             elif key == 'password':
-                self.password_min_length(v[key])
+                UserCreate.password_min_length(v[key])
         return v

@@ -24,3 +24,12 @@ class FundraisingNotFoundError(DatabaseError):
 
 class FundraisingUpdateError(DatabaseError):
     pass
+
+
+class NewsNotFoundError(DatabaseError):
+    pass
+
+
+class NewsUpdateError(DatabaseError):
+    pass
+

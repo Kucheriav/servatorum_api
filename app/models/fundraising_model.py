@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date, Enum, check
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date, Enum, CheckConstraint
 from app.database import Base
 
 
@@ -14,9 +14,9 @@ class Fundraising(Base):
     fund_id = Column(Integer, ForeignKey('funds.id'))
 
     __table_args__ = (
-        check('start_date >= CURRENT_DATE'),
-        check('finish_date >= CURRENT_DATE'),
-        check('finish_date > start_date'),
+        CheckConstraint('start_date >= CURRENT_DATE'),
+        CheckConstraint('finish_date >= CURRENT_DATE'),
+        CheckConstraint('finish_date > start_date'),
     )
 
 class FundraisingFiles(Base):
