@@ -11,7 +11,6 @@ class Fundraising(Base):
     start_date = Column(Date)
     finish_date = Column(Date)
     owner_id = Column(Integer, ForeignKey('users.id'))
-    fund_id = Column(Integer, ForeignKey('funds.id'))
 
     __table_args__ = (
         CheckConstraint('start_date >= CURRENT_DATE'),

@@ -48,7 +48,7 @@ class User(Base):
 class UserCompanyRelation(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    company_id = Column(Integer, ForeignKey('legal_entity.id'))
+    company_id = Column(Integer, ForeignKey('legalentitys.id'))
 
 
 class UserMeta(Base):

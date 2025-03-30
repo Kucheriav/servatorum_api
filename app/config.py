@@ -15,8 +15,9 @@ class Settings(BaseSettings):
     )
 
     def get_db_url(self):
-        return (f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@"
-                f"{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}")
+        s = f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        print(s)
+        return s
 
     def get_salt(self):
         return self.PASSWORD_SALT
