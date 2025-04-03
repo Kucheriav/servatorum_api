@@ -38,9 +38,9 @@ class NewsResponse(BaseModel):
         arbitrary_types_allowed = True
 
 class NewsPaginationResponse(BaseModel):
-    total: int
     page: int
     page_size: int
+    total_items: int
     total_pages: int
     has_next: bool
     has_previous: bool
