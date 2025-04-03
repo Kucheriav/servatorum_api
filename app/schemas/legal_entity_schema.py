@@ -52,6 +52,20 @@ class LegalEntityCreate(BaseModel):
             raise ValueError('Неправильный тип юридического лица')
         return v
 
+class LegalEntityResponse(BaseModel):
+    legal_entity_id: int
+    name: str
+    description: str
+    logo: str
+    photo: str
+    inn: str
+    bik: str
+    cor_account: str
+    address: str
+    address_reg: str
+    phone: str
+    phone_helpdesk: str
+    entity_type: str
 
 class LegalEntityPatch(BaseModel):
     legal_entity_id: int

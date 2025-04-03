@@ -38,11 +38,11 @@ async def get_news(page: int = 1, page_size: int = 10):
         return result
     raise HTTPException(status_code=404, detail="Новости не найдены")
 
-@router.patch("/update_news/{news_id}", response_model=NewsResponse)
-async def update_news(news_id: int, news_params_to_update: NewsUpdate):
-    updated_news = await news_crud.update_news(news_id, news_params_to_update)
-    if updated_news:
-        return updated_news
+@router.patch("/patch_news/{news_id}", response_model=NewsResponse)
+async def patch_news(news_id: int, news_params_to_patch: NewsPatch):
+    patched_news = await news_crud.patch_news(news_id, news_params_to_patch)
+    if patched_news:
+        return patched_news
     raise HTTPException(status_code=404, detail="Новость не найдена")
 
 @router.delete("/delete_news/{news_id}")

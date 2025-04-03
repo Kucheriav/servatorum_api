@@ -9,7 +9,7 @@ legal_entity_crud = LegalEntityCRUD()
 # TODO optimize exceptions chain
 
 
-@router.post("/create_legal_entity", response_model=LegalEntityCreate)
+@router.post("/create_legal_entity", response_model=LegalEntityResponse)
 async def create_legal_entity(legal_entity: LegalEntityCreate):
     try:
         return await legal_entity_crud.create_legal_entity(legal_entity)
@@ -29,7 +29,7 @@ async def create_legal_entity(legal_entity: LegalEntityCreate):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.get("/get_legal_entity/{legal_entity_id}")
+@router.get("/get_legal_entity/{legal_entity_id}", response_model=LegalEntityResponse)
 async def get_legal_entity(legal_entity_id: int):
     legal_entity = await legal_entity_crud.get_legal_entity(legal_entity_id)
     if legal_entity:
@@ -37,7 +37,7 @@ async def get_legal_entity(legal_entity_id: int):
     raise HTTPException(status_code=404, detail="Legal entity not found")
 
 
-@router.patch("/patch_legal_entity/{legal_entity_id}", response_model=LegalEntityPatch)
+@router.patch("/patch_legal_entity/{legal_entity_id}", response_model=LegalEntityResponse)
 async def patch_legal_entity(legal_entity_id: int, legal_entity_params_to_patch: LegalEntityPatch):
     patched_legal_entity = await legal_entity_crud.patch_legal_entity(legal_entity_id, legal_entity_params_to_patch)
     if patched_legal_entity:

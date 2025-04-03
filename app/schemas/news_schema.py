@@ -1,23 +1,37 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
+
 
 class NewsCreate(BaseModel):
-    title: str = Field(..., max_length=255)
-    description: str = Field(..., max_length=1000)
+    title: str
+    description: str
     publication_date: datetime
     photo: Optional[str] = None
 
     class Config:
         arbitrary_types_allowed = True
 
+    @staticmethod
+    @field_validator('title')
+    def title_len(v):
+        if not(0 < v < 256):
+            raise ValueError('Incorrect field length. Must be [1 .. 255]')
+        return v
+
+    @staticmethod
+    @field_validator('description')
+    def description_len(v):
+        if not(0 < v < 1001):
+            raise ValueError('Incorrect field length. Must be [1 .. 1000]')
+        return v
+
 class NewsResponse(BaseModel):
-    id: int
+    news_id: int
     title: str
     description: str
     publication_date: datetime
     photo: Optional[str] = None
-
 
     class Config:
         orm_mode = True
@@ -32,11 +46,22 @@ class NewsPaginationResponse(BaseModel):
     has_previous: bool
     items: List[NewsResponse]
 
-class NewsUpdate(BaseModel):
-    title: Optional[str] = Field(None, max_length=255)
-    description: Optional[str] = Field(None, max_length=1000)
-    publication_date: Optional[datetime] = None
-    photo: Optional[str] = None
+    class Config:
+        arbitrary_types_allowed = True
+
+class NewsPatch(BaseModel):
+    news_id: int
+    params: Dict[str, Any]
 
     class Config:
         arbitrary_types_allowed = True
+
+    @staticmethod
+    @field_validator('params')
+    def validate_individual_fields(v):
+        for key in v:
+            if key == 'title':
+                NewsCreate.title_len(v[key])
+            elif key == 'description':
+                NewsCreate.description_len(v[key])
+        return v

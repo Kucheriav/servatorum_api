@@ -30,6 +30,18 @@ class UserCreate(BaseModel):
             raise ValueError('Password must be at least 8 characters long')
         return v
 
+class UserResponse(BaseModel):
+    user_id: int
+    login: str
+    email: EmailStr
+    first_name: Optional[str] = None
+    surname: Optional[str] = None
+    last_name: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    gender: Optional[str] = None
+    city: Optional[str] = None
+    phone: str
+    password: str
 
 class UserPatch(BaseModel):
     user_id: int

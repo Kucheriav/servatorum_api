@@ -28,6 +28,7 @@ class FundraisingCreate(BaseModel):
         return v
 
 class FundraisingResponce(BaseModel):
+    fundraising_id: int
     title: str
     description: str
     goal_amount: float

@@ -9,7 +9,7 @@ fundraising_crud = FundraisingCRUD()
 # TODO optimize exceptions chain
 
 
-@router.post("/create_fundraising", response_model=FundraisingCreate)
+@router.post("/create_fundraising", response_model=FundraisingResponce)
 async def create_fundraising(fundraising: FundraisingCreate):
     try:
         return await fundraising_crud.create_fundraising(fundraising)
@@ -45,7 +45,7 @@ async def get_fundraisings(page: int = 1, page_size: int = 10):
     raise HTTPException(status_code=404, detail="Fundraising not found")
 
 
-@router.patch("/patch_fundraising/{fundraising_id}", response_model=FundraisingPatch)
+@router.patch("/patch_fundraising/{fundraising_id}", response_model=FundraisingResponce)
 async def patch_fundraising(fundraising_id: int, fundraising_params_to_patch: FundraisingPatch):
     patched_fundraising = await fundraising_crud.patch_fundraising(fundraising_id, fundraising_params_to_patch)
     if patched_fundraising:

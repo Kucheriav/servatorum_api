@@ -9,7 +9,7 @@ user_crud = UserCRUD()
 # TODO optimize exceptions chain
 
 
-@router.post("/create_user", response_model=UserCreate)
+@router.post("/create_user", response_model=UserResponse)
 async def create_user(user: UserCreate):
     try:
         return await user_crud.create_user(user)
@@ -28,7 +28,7 @@ async def create_user(user: UserCreate):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 #TODO refactor all GET DELETE routes witout using query-strings into Pydantic models (yes, with 1 parameter)
-@router.get("/get_user/{user_id}")
+@router.get("/get_user/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int):
     user = await user_crud.get_user(user_id)
     if user:
@@ -36,7 +36,7 @@ async def get_user(user_id: int):
     raise HTTPException(status_code=404, detail="User not found")
 
 
-@router.patch("/patch_user/{user_id}", response_model=UserPatch)
+@router.patch("/patch_user/{user_id}", response_model=UserResponse)
 async def patch_user(user_id: int, user_params_to_patch: UserPatch):
     patched_user = await user_crud.patch_user(user_id, user_params_to_patch)
     if patched_user:
