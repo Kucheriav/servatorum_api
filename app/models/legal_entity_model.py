@@ -10,7 +10,7 @@ class LegalEntity(Base):
     name = Column(String)
     description = Column(String)
     logo = Column(String)
-    inn = Column(String, )
+    inn = Column(String, unique=True)
     bik = Column(String)
     cor_account = Column(String)
     address = Column(String)

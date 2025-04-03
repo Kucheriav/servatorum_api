@@ -24,7 +24,7 @@ async def create_legal_entity(legal_entity: LegalEntityCreate):
         raise HTTPException(status_code=422, detail=error_messages)
     # TODO think about unique constrictions
     except exc.IntegrityError:
-        raise HTTPException(status_code=400, detail="Email already exists")
+        raise HTTPException(status_code=400, detail="INN already exists")
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
