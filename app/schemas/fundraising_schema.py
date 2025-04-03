@@ -46,7 +46,7 @@ class FundraisingPaginationResponse(BaseModel):
     total_pages: int
     has_next: bool
     has_previous: bool
-    fundraisings: List[FundraisingResponce]
+    items: List[FundraisingResponce]
 
     class Config:
         arbitrary_types_allowed = True
