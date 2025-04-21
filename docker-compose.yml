@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  api:
+    build: . # Указывает Docker собрать образ из текущей директории (где лежит Dockerfile)
+    container_name: servatorum_api_app # Имя контейнера
+    restart: unless-stopped # Перезапускать контейнер, если он остановился (кроме случая ручной остановки)
+    env_file:
+      - .env # Загружаем переменные окружения из файла .env
+    ports:
+      - "8000:8000" # Пробрасываем порт 8000 из контейнера на порт 8000 хост-машины
+    volumes:
+      # Можно подключить том для логов или других данных, если нужно
+      # - ./logs:/app/logs
+    networks:
+      - app_network # Подключаем контейнер к сети
+
+# Определение сети (позволяет контейнерам общаться друг с другом, если их несколько)
+networks:
+  app_network:
+    driver: bridge
+
+# Опционально: Если хочешь управлять PostgreSQL через Docker Compose
+# services:
+#   db:
+#     image: postgres:15 # Используй нужную версию PostgreSQL
+#     container_name: servatorum_db
+#     restart: unless-stopped
+#     env_file:
+#       - .env # Файл .env должен содержать POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data # Сохранение данных БД вне контейнера
+#     ports:
+#       - "5432:5432" # Проброс порта БД (будь осторожен с доступом извне)
+#     networks:
+#       - app_network
+
+# volumes:
+#   postgres_data: # Том для хранения данных PostgreSQL
