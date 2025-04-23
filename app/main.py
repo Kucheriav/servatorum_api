@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+import logging
+from .logging_config import setup_logging
 from app.database import engine, Base
 from app.routers import user_routes, legal_entity_routes, fundraising_routes, news_routes
 
@@ -16,12 +18,16 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
+setup_logging()
+logger = logging.getLogger(__name__)
+
 app = FastAPI(lifespan=lifespan)
+logger.info("FastAPI starting...")
 app.include_router(user_routes.router, prefix="/users", tags=["users"])
 app.include_router(legal_entity_routes.router, prefix="/legal_entity", tags=["legal_entity"])
 app.include_router(fundraising_routes.router, prefix="/fundraising", tags=["fundraising"])
 app.include_router(news_routes.router, prefix="/news", tags=["news"])
-
+logger.info("Routers are connected")
 
 
 if __name__ == "__main__":
