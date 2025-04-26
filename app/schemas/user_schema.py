@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr, constr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional, Dict, Any
+from datetime import date
 import re
 
 
@@ -10,7 +11,7 @@ class UserCreate(BaseModel):
     first_name: Optional[str] = None
     surname: Optional[str] = None
     last_name: Optional[str] = None
-    date_of_birth: Optional[str] = None
+    date_of_birth: Optional[date] = None
     gender: Optional[str] = None
     city: Optional[str] = None
     address: Optional[str] = None

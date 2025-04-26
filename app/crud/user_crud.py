@@ -3,8 +3,9 @@ from app.models.user_model import User
 from app.schemas.user_schema import UserCreate
 from app.errors_custom_types import *
 import logging
+from datetime import datetime
 
-# Create a logger specific to this module
+
 logger = logging.getLogger("app.user_crud")
 
 
@@ -13,6 +14,11 @@ class UserCRUD:
     async def create_user(self, user: UserCreate, session):
         logger.info("Creating a new user")
         try:
+            date_of_birth = (
+                datetime.strptime(user.date_of_birth, "%Y-%m-%d").date()
+                if isinstance(user.date_of_birth, str)
+                else user.date_of_birth
+            )
             new_user = User(
                 login=user.login,
                 first_name=user.first_name,
