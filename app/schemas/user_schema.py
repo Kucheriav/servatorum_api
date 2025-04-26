@@ -6,15 +6,18 @@ import re
 # помечаем необязательные first_name: Optional[str] = None, чтобы вместо непереданных появилось значение по умлочанию
 class UserCreate(BaseModel):
     login: str
-    email: EmailStr
+    password: str
     first_name: Optional[str] = None
     surname: Optional[str] = None
     last_name: Optional[str] = None
     date_of_birth: Optional[str] = None
     gender: Optional[str] = None
     city: Optional[str] = None
+    address: Optional[str] = None
+    email: EmailStr
     phone: str
-    password: str
+    profile_picture: Optional[str] = None
+
 
     @staticmethod
     @field_validator('phone')

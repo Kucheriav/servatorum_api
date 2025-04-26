@@ -21,6 +21,9 @@ class UserCRUD:
                 date_of_birth=user.date_of_birth,
                 gender=user.gender,
                 city=user.city,
+                address=user.address,
+                email=user.email,
+                phone=user.phone,
                 profile_picture=None
             )
             new_user.set_password(user.password)
@@ -29,18 +32,7 @@ class UserCRUD:
             await session.commit()
             await session.refresh(new_user)  # Refresh to get the generated ID
             logger.info(f"User created successfully with ID: {new_user.id}")
-            return {
-                "user_id": new_user.id,
-                "login": new_user.login,
-                "email": new_user.email,
-                "phone": new_user.phone,
-                "first_name": new_user.first_name,
-                "surname": new_user.surname,
-                "last_name": new_user.last_name,
-                "date_of_birth": new_user.date_of_birth,
-                "gender": new_user.gender,
-                "city": new_user.city,
-            }
+            return new_user
         except Exception as e:
             logger.error("Error occurred while creating user", exc_info=True)
             raise
