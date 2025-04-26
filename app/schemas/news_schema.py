@@ -50,7 +50,6 @@ class NewsPaginationResponse(BaseModel):
         arbitrary_types_allowed = True
 
 class NewsPatch(BaseModel):
-    news_id: int
     params: Dict[str, Any]
 
     class Config:

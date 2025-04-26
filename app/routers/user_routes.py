@@ -52,7 +52,7 @@ async def get_user(user_id: int):
 @router.patch("/patch_user/{user_id}", response_model=UserResponse)
 async def patch_user(user_id: int, user_params_to_patch: UserPatch):
     logger.info(f"Request received to patch user with ID: {user_id}")
-    patched_user = await user_crud.patch_user(user_id, user_params_to_patch)
+    patched_user = await user_crud.patch_user(user_id=user_id, params=user_params_to_patch)
     if patched_user:
         logger.info(f"User with ID {user_id} patched successfully")
         return patched_user
@@ -68,3 +68,4 @@ async def delete_user(user_id: int):
         return {"message": "User deleted"}
     logger.warning(f"User with ID {user_id} not found for deletion")
     raise HTTPException(status_code=404, detail="User not found")
+

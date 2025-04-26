@@ -48,7 +48,6 @@ class UserResponse(BaseModel):
 
 
 class UserPatch(BaseModel):
-    id: int
     params: Dict[str, Any]
 
     @staticmethod

@@ -56,7 +56,7 @@ class UserCRUD:
             raise
 
     @connection
-    async def patch_user(self, user_id: int, session, **params):
+    async def patch_user(self, user_id: int, session, params):
         logger.info(f"Patching user with ID: {user_id}")
         logger.info(str(session), '\n'.join(f'{x}:{params[x]}' for x in params))
         try:
@@ -64,7 +64,7 @@ class UserCRUD:
             result = await session.execute(query)
             user_to_patch = result.scalar_one_or_none()
             if user_to_patch:
-                for key, value in params.items():
+                for key, value in params.params.items():
                     if hasattr(user_to_patch, key):
                         setattr(user_to_patch, key, value)
                         logger.debug(f"Updated field {key} to {value} for user ID {user_id}")
@@ -99,3 +99,4 @@ class UserCRUD:
         except Exception as e:
             logger.error(f"Error occurred while deleting user with ID {user_id}", exc_info=True)
             raise
+

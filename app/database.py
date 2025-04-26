@@ -29,6 +29,7 @@ def connection(method):
                 return await method(*args, **kwargs)
 
         async with async_session_maker() as session:
+
             try:
                 result = await method(*args, session=session, **kwargs)
                 logger.info(f"Method {method.__name__} completed successfully")

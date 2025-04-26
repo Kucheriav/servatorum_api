@@ -52,7 +52,6 @@ class FundraisingPaginationResponse(BaseModel):
         arbitrary_types_allowed = True
 
 class FundraisingPatch(BaseModel):
-    fundraising_id: int
     params: Dict[str, Any]
 
     class Config:

@@ -68,7 +68,6 @@ class LegalEntityResponse(BaseModel):
     entity_type: str
 
 class LegalEntityPatch(BaseModel):
-    legal_entity_id: int
     params: Dict[str, Any]
 
     @staticmethod
