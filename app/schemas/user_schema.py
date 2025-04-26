@@ -42,7 +42,7 @@ class UserResponse(BaseModel):
     first_name: Optional[str] = None
     surname: Optional[str] = None
     last_name: Optional[str] = None
-    date_of_birth: Optional[str] = None
+    date_of_birth: Optional[date] = None
     gender: Optional[str] = None
     city: Optional[str] = None
 
