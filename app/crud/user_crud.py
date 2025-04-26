@@ -56,7 +56,7 @@ class UserCRUD:
             raise
 
     @connection
-    async def patch_user(self, user_id: int, *, session, **params):
+    async def patch_user(self, user_id: int, session, **params):
         logger.info(f"Patching user with ID: {user_id}")
         try:
             query = select(User).where(User.id == user_id)
