@@ -17,6 +17,10 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 def connection(method):
     async def wrapper(*args, **kwargs):
         logger.info(f"Opening a new database session for method: {method.__name__}")
+        if 'session' in kwargs:
+            logger.info(f"Session already provided for method: {method.__name__}")
+            return await method(*args, **kwargs)
+
         async with async_session_maker() as session:
             try:
                 result = await method(*args, session=session, **kwargs)
@@ -27,11 +31,9 @@ def connection(method):
                 await session.rollback()
                 raise e
             finally:
-                await session.close()
                 logger.info(f"Database session for method {method.__name__} closed")
 
     return wrapper
-
 
 # Base class for all models
 class Base(AsyncAttrs, DeclarativeBase):

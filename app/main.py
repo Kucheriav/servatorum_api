@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import logging
-from .logging_config import setup_logging
+from logging_config import setup_logging
 from app.database import engine, Base
 from app.routers import user_routes, legal_entity_routes, fundraising_routes, news_routes
 
