@@ -35,7 +35,7 @@ class UserCreate(BaseModel):
         return v
 
 class UserResponse(BaseModel):
-    user_id: int
+    id: int
     login: str
     email: EmailStr
     phone: str
@@ -48,7 +48,7 @@ class UserResponse(BaseModel):
 
 
 class UserPatch(BaseModel):
-    user_id: int
+    id: int
     params: Dict[str, Any]
 
     @staticmethod

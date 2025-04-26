@@ -5,7 +5,6 @@ from .logging_config import setup_logging
 from app.database import engine, Base
 from app.routers import user_routes, legal_entity_routes, fundraising_routes, news_routes
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
