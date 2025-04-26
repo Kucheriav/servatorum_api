@@ -38,7 +38,18 @@ class UserCRUD:
             await session.commit()
             await session.refresh(new_user)  # Refresh to get the generated ID
             logger.info(f"User created successfully with ID: {new_user.id}")
-            return new_user
+            return {
+                "user_id": new_user.id,
+                "login": new_user.login,
+                "email": new_user.email,
+                "phone": new_user.phone,
+                "first_name": new_user.first_name,
+                "surname": new_user.surname,
+                "last_name": new_user.last_name,
+                "date_of_birth": new_user.date_of_birth.isoformat() if new_user.date_of_birth else None,
+                "gender": new_user.gender,
+                "city": new_user.city,
+            }
         except Exception as e:
             logger.error("Error occurred while creating user", exc_info=True)
             raise

@@ -38,6 +38,7 @@ class UserResponse(BaseModel):
     user_id: int
     login: str
     email: EmailStr
+    phone: str
     first_name: Optional[str] = None
     surname: Optional[str] = None
     last_name: Optional[str] = None
