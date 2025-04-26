@@ -17,7 +17,7 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 def connection(method):
     async def wrapper(*args, **kwargs):
         logger.info(f"Opening a new database session for method: {method.__name__}")
-        logger.info(' '.join(f'{x}' for x in args))
+        logger.info(' '.join(f'{x} {type(x)}' for x in args))
         logger.info('\n'.join(f'{x}:{kwargs[x]}' for x in kwargs))
 
         if 'session' in kwargs:
