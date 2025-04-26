@@ -40,8 +40,7 @@ class UserResponse(BaseModel):
     date_of_birth: Optional[str] = None
     gender: Optional[str] = None
     city: Optional[str] = None
-    phone: str
-    password: str
+
 
 class UserPatch(BaseModel):
     user_id: int

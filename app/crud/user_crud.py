@@ -21,14 +21,26 @@ class UserCRUD:
                 date_of_birth=user.date_of_birth,
                 gender=user.gender,
                 city=user.city,
-                profile_picture=None  # Default value
+                profile_picture=None
             )
             new_user.set_password(user.password)
 
             session.add(new_user)
-            session.commit()
+            await session.commit()
+            await session.refresh(new_user)  # Refresh to get the generated ID
             logger.info(f"User created successfully with ID: {new_user.id}")
-            return new_user
+            return {
+                "user_id": new_user.id,
+                "login": new_user.login,
+                "email": new_user.email,
+                "phone": new_user.phone,
+                "first_name": new_user.first_name,
+                "surname": new_user.surname,
+                "last_name": new_user.last_name,
+                "date_of_birth": new_user.date_of_birth,
+                "gender": new_user.gender,
+                "city": new_user.city,
+            }
         except Exception as e:
             logger.error("Error occurred while creating user", exc_info=True)
             raise
@@ -57,7 +69,7 @@ class UserCRUD:
                     else:
                         logger.warning(f"Field {key} not found in User model")
                         raise UserUpdateError(f"FIELD_NOT_FOUND: {key}")
-                session.commit()
+                await session.commit()
                 logger.info(f"User with ID {user_id} patched successfully")
                 return user_to_patch
             except Exception as e:
@@ -68,13 +80,13 @@ class UserCRUD:
             raise UserNotFoundError(f"USER_NOT_FOUND: {user_id}")
 
     @connection
-    def delete_user(self, user_id: int, session):
+    async def delete_user(self, user_id: int, session):
         logger.info(f"Deleting user with ID: {user_id}")
         user_to_delete = session.select(User).filter(User.id == user_id).first()
         if user_to_delete:
             try:
                 session.delete(user_to_delete)
-                session.commit()
+                await session.commit()
                 logger.info(f"User with ID {user_id} deleted successfully")
                 return True
             except Exception as e:

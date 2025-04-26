@@ -25,7 +25,7 @@ class FundraisingCRUD:
                 finish_date=fundraising.finish_date
             )
             session.add(new_fundraising)
-            session.commit()
+            await session.commit()
             logger.info(f"Fundraising created successfully with ID: {new_fundraising.id}")
             return new_fundraising
         except Exception as e:
@@ -80,7 +80,7 @@ class FundraisingCRUD:
                     else:
                         logger.warning(f"Field {key} not found in Fundraising model")
                         raise FundraisingUpdateError(f"FIELD_NOT_FOUND: {key}")
-                session.commit()
+                await session.commit()
                 logger.info(f"Fundraising with ID {fundraising_id} patched successfully")
                 return fundraising_to_patch
             except Exception as e:
@@ -91,13 +91,13 @@ class FundraisingCRUD:
             raise FundraisingNotFoundError(f"FUNDRAISING_NOT_FOUND: {fundraising_id}")
 
     @connection
-    def delete_fundraising(self, fundraising_id: int, session):
+    async def delete_fundraising(self, fundraising_id: int, session):
         logger.info(f"Deleting fundraising with ID: {fundraising_id}")
         fundraising_to_delete = session.select(Fundraising).filter(Fundraising.id == fundraising_id).first()
         if fundraising_to_delete:
             try:
                 session.delete(fundraising_to_delete)
-                session.commit()
+                await session.commit()
                 logger.info(f"Fundraising with ID {fundraising_id} deleted successfully")
                 return True
             except Exception as e:

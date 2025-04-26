@@ -27,7 +27,7 @@ class LegalEntityCRUD:
                 entity_type=legal_entity.entity_type,
             )
             session.add(new_legal_entity)
-            session.commit()
+            await session.commit()
             logger.info(f"Legal entity created successfully with ID: {new_legal_entity.id}")
             return new_legal_entity
         except Exception as e:
@@ -58,7 +58,7 @@ class LegalEntityCRUD:
                     else:
                         logger.warning(f"Field {key} not found in LegalEntity model")
                         raise LegalEntityUpdateError(f"FIELD_NOT_FOUND: {key}")
-                session.commit()
+                await session.commit()
                 logger.info(f"Legal entity with ID {legal_entity_id} patched successfully")
                 return legal_entity_to_patch
             except Exception as e:
@@ -69,13 +69,13 @@ class LegalEntityCRUD:
             raise LegalEntityNotFoundError(f"LEGAL_ENTITY_NOT_FOUND: {legal_entity_id}")
 
     @connection
-    def delete_legal_entity(self, legal_entity_id: int, session):
+    async def delete_legal_entity(self, legal_entity_id: int, session):
         logger.info(f"Deleting legal entity with ID: {legal_entity_id}")
         legal_entity_to_delete = session.select(LegalEntity).filter(LegalEntity.id == legal_entity_id).first()
         if legal_entity_to_delete:
             try:
                 session.delete(legal_entity_to_delete)
-                session.commit()
+                await session.commit()
                 logger.info(f"Legal entity with ID {legal_entity_id} deleted successfully")
                 return True
             except Exception as e:

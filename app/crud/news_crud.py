@@ -21,7 +21,7 @@ class NewsCRUD:
                 photo=news.photo
             )
             session.add(new_news)
-            session.commit()
+            await session.commit()
             logger.info(f"News created successfully with ID: {new_news.id}")
             return new_news
         except Exception as e:
@@ -76,7 +76,7 @@ class NewsCRUD:
                     else:
                         logger.warning(f"Field {key} not found in News model")
                         raise NewsUpdateError(f"FIELD_NOT_FOUND: {key}")
-                session.commit()
+                await session.commit()
                 logger.info(f"News with ID {news_id} patched successfully")
                 return news_to_patch
             except Exception as e:
@@ -87,13 +87,13 @@ class NewsCRUD:
             raise NewsNotFoundError(f"NEWS_NOT_FOUND: {news_id}")
 
     @connection
-    def delete_news(self, news_id: int, session):
+    async def delete_news(self, news_id: int, session):
         logger.info(f"Deleting news with ID: {news_id}")
         news_to_delete = session.select(News).filter(News.id == news_id).first()
         if news_to_delete:
             try:
                 session.delete(news_to_delete)
-                session.commit()
+                await session.commit()
                 logger.info(f"News with ID {news_id} deleted successfully")
                 return True
             except Exception as e:

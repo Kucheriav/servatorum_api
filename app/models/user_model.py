@@ -18,7 +18,7 @@ class User(Base):
     gender = Column(String)
     city = Column(String)
     address = Column(String)
-    _email = Column(String, nullable=False, unique=True)
+    email = Column(String, nullable=False, unique=True)
     phone = Column(String, nullable=False)
     profile_picture = Column(String)
 
