@@ -17,9 +17,14 @@ async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 def connection(method):
     async def wrapper(*args, **kwargs):
         logger.info(f"Opening a new database session for method: {method.__name__}")
+
         if 'session' in kwargs:
-            logger.info(f"Session already provided for method: {method.__name__}")
+            logger.info(f"Session already provided in kwargs for method: {method.__name__}")
             return await method(*args, **kwargs)
+        for arg in args:
+            if isinstance(arg, async_session_maker):
+                logger.info(f"Session already provided as a positional argument for method: {method.__name__}")
+                return await method(*args, **kwargs)
 
         async with async_session_maker() as session:
             try:
