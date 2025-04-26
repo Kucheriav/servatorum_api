@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, declared_attr, Mapped, mapped_column
-from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine, AsyncSession
 from sqlalchemy import Integer, func
 from datetime import datetime
 from app.config import settings
@@ -22,7 +22,7 @@ def connection(method):
             logger.info(f"Session already provided in kwargs for method: {method.__name__}")
             return await method(*args, **kwargs)
         for arg in args:
-            if isinstance(arg, async_session_maker):
+            if isinstance(arg, AsyncSession):
                 logger.info(f"Session already provided as a positional argument for method: {method.__name__}")
                 return await method(*args, **kwargs)
 
