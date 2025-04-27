@@ -1,5 +1,14 @@
+import logging
+
 from pydantic import BaseModel, Field, field_validator
 from typing import Dict, Any
+
+logger = logging.getLogger("pydantic_validation")
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 class LegalEntityCreate(BaseModel):
     name: str
@@ -14,6 +23,12 @@ class LegalEntityCreate(BaseModel):
     phone: str = Field(..., description="Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{9}$")
     phone_helpdesk: str = Field(..., description="Helpdesk Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{9}$")
     entity_type: str = Field(..., description="Entity type must be 'company' or 'foundation'.")
+
+    @field_validator('*', mode='before')
+    def log_field_validation(self, value, field):
+        logger.info(f"Validating field '{field.name}' with value '{value}'")
+        return value
+
 
     @field_validator('entity_type', mode='before')
     def validate_entity_type(self, v):
