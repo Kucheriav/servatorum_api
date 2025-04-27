@@ -24,11 +24,11 @@ class LegalEntityCreate(BaseModel):
     phone_helpdesk: str = Field(..., description="Helpdesk Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{9}$")
     entity_type: str = Field(..., description="Entity type must be 'company' or 'foundation'.")
 
-    @classmethod
-    @field_validator('*', mode='before')
-    def log_field_validation(cls, value, field):
-        logger.info(f"Validating field '{field.name}' with value '{value}'")
-        return value
+    # @classmethod
+    # @field_validator('*', mode='before')
+    # def log_field_validation(cls, value, field):
+    #     logger.info(f"Validating field '{field.name}' with value '{value}'")
+    #     return value
 
     @classmethod
     @field_validator('entity_type', mode='before')
