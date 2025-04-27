@@ -4,11 +4,11 @@ from pydantic import BaseModel, Field, field_validator
 from typing import Dict, Any
 
 logger = logging.getLogger("pydantic_validation")
-logger.setLevel(logging.INFO)
-handler = logging.StreamHandler()
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+# logger.setLevel(logging.INFO)
+# handler = logging.StreamHandler()
+# formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+# handler.setFormatter(formatter)
+# logger.addHandler(handler)
 
 class LegalEntityCreate(BaseModel):
     name: str
