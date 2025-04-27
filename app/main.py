@@ -31,4 +31,5 @@ logger.info("Routers are connected")
 
 if __name__ == "__main__":
     import uvicorn
+    print(123123)
     uvicorn.run(app, host="0.0.0.0", port=8000)

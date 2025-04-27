@@ -1,14 +1,10 @@
-from pydantic import BaseModel, EmailStr, field_validator, datetime_parse
+from pydantic import BaseModel, EmailStr, field_validator, Field
 from typing import Optional, Dict, Any
 import datetime
 import re
 
 import logging
-from app.logging_config import setup_logging
 
-from pydantic.datetime_parse import parse_date
-
-setup_logging()
 logger = logging.getLogger(__name__)
 
 class UserCreate(BaseModel):
@@ -25,19 +21,15 @@ class UserCreate(BaseModel):
     phone: str
     profile_picture: Optional[str] = None
 
-    @classmethod
-    @field_validator("date_of_birth", mode="before")
-    def parse_date_of_birth(cls, v):
-        if v is None:
-            return v
-        try:
-            return parse_date(v)  # Automatically parses various date formats
-        except ValueError:
-            raise ValueError("Invalid date format. Expected a valid date (e.g., YYYY-MM-DD).")
+    def __init__(self, /, **data: Any):
+
+        super().__init__(**data)
+        print('init')
 
     @classmethod
     @field_validator('phone')
     def phone_format(cls, v):
+        print('f"Validating phone: {v}"')
         logger.info(f"Validating phone: {v}")
         if not re.match(r'^7\d{9}$', v):
             raise ValueError('Неправильный формат телефона')
@@ -59,7 +51,7 @@ class UserResponse(BaseModel):
     first_name: Optional[str] = None
     surname: Optional[str] = None
     last_name: Optional[str] = None
-    date_of_birth: Optional[date] = None
+    date_of_birth: Optional[datetime.date] = None
     gender: Optional[str] = None
     city: Optional[str] = None
 

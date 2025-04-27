@@ -1,6 +1,6 @@
 from pydantic import BaseModel, field_validator
 from typing import Dict, Any, List
-from datetime import datetime
+import datetime
 
 class FundraisingCreate(BaseModel):
     title: str
@@ -16,14 +16,14 @@ class FundraisingCreate(BaseModel):
     @staticmethod
     @field_validator('start_date')
     def start_date_not_before_today(v):
-        if v < datetime.now().date():
+        if v < datetime.datetime.now().date():
             raise ValueError('Start date cannot be before today')
         return v
 
     @staticmethod
     @field_validator('finish_date')
     def finish_date_not_before_today(v):
-        if v < datetime.now().date():
+        if v < datetime.datetime.now().date():
             raise ValueError('Finish date cannot be before today')
         return v
 
