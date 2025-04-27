@@ -1,56 +1,75 @@
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Dict, Any
-import re
-
 
 class LegalEntityCreate(BaseModel):
     name: str
     description: str
     logo: str
     photo: str
-    inn: str
-    bik: str
-    cor_account: str
+    inn: str = Field(..., description="INN must be exactly 10 digits.", min_length=10, max_length=10, pattern=r"^\d{10}$")
+    bik: str = Field(..., description="BIK must be exactly 9 digits.", min_length=9, max_length=9, pattern=r"^\d{9}$")
+    cor_account: str = Field(..., description="Correspondent Account must be exactly 20 digits.", min_length=20, max_length=20, pattern=r"^\d{20}$")
     address: str
     address_reg: str
-    phone: str
-    phone_helpdesk: str
-    entity_type: str
+    phone: str = Field(..., description="Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{9}$")
+    phone_helpdesk: str = Field(..., description="Helpdesk Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{9}$")
+    entity_type: str = Field(..., description="Entity type must be 'company' or 'foundation'.")
 
-    @staticmethod
-    @field_validator('phone', 'phone_helpdesk')
-    def phone_format(v):
-        if not re.match(r'^7\d{9}$', v):
-            raise ValueError('Неправильный формат телефона')
+    @field_validator('entity_type', mode='before')
+    def validate_entity_type(self, v):
+        valid_types = ['company', 'foundation']
+        if v not in valid_types:
+            raise ValueError(f"Invalid entity type: {v}. Must be one of {valid_types}.")
         return v
 
-    @staticmethod
-    @field_validator('bik')
-    def bik_format(v):
-        if not re.match(r'^[0-9]{9}$', v):
-            raise ValueError('Неправильный формат БИК')
-        return v
-
-    @staticmethod
-    @field_validator('inn')
-    def inn_format(v):
-        if not re.match(r'^[0-9]{10}$', v):
-            raise ValueError('Неправильный формат ИНН')
-        return v
-
-    @staticmethod
-    @field_validator('cor_account')
-    def cor_account_format(v):
-        if not re.match(r'^[0-9]{20}$', v):
-            raise ValueError('Неправильный формат корреспондентского счета')
-        return v
-
-    @staticmethod
-    @field_validator('entity_type')
-    def entity_type_format(v):
-        if v not in ['company', 'foundation']:
-            raise ValueError('Неправильный тип юридического лица')
-        return v
+# class LegalEntityCreate(BaseModel):
+#     name: str
+#     description: str
+#     logo: str
+#     photo: str
+#     inn: str
+#     bik: str
+#     cor_account: str
+#     address: str
+#     address_reg: str
+#     phone: str
+#     phone_helpdesk: str
+#     entity_type: str
+#
+#     @staticmethod
+#     @field_validator('phone', 'phone_helpdesk')
+#     def phone_format(v):
+#         if not re.match(r'^7\d{9}$', v):
+#             raise ValueError('Неправильный формат телефона')
+#         return v
+#
+#     @staticmethod
+#     @field_validator('bik')
+#     def bik_format(v):
+#         if not re.match(r'^[0-9]{9}$', v):
+#             raise ValueError('Неправильный формат БИК')
+#         return v
+#
+#     @staticmethod
+#     @field_validator('inn')
+#     def inn_format(v):
+#         if not re.match(r'^[0-9]{10}$', v):
+#             raise ValueError('Неправильный формат ИНН')
+#         return v
+#
+#     @staticmethod
+#     @field_validator('cor_account')
+#     def cor_account_format(v):
+#         if not re.match(r'^[0-9]{20}$', v):
+#             raise ValueError('Неправильный формат корреспондентского счета')
+#         return v
+#
+#     @staticmethod
+#     @field_validator('entity_type')
+#     def entity_type_format(v):
+#         if v not in ['company', 'foundation']:
+#             raise ValueError('Неправильный тип юридического лица')
+#         return v
 
 class LegalEntityResponse(BaseModel):
     legal_entity_id: int
