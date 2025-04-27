@@ -33,26 +33,20 @@ class LegalEntityCRUD:
             logger.info(f"Legal entity created successfully with ID: {new_legal_entity.id}")
             return new_legal_entity
         except IntegrityError as e:
+            logger.error("Integrity Error occurred while creating legal entity", exc_info=True)
             constraint_name = None
             if hasattr(e.orig, "diag") and e.orig.diag.constraint_name:
                 constraint_name = e.orig.diag.constraint_name
-                logger.error(f"Constraint violation: {constraint_name}")
-            else:
-                logger.error(f"Integrity error without constraint name: {str(e.orig)}")
-
-            # Map specific constraint names to user-friendly messages
             constraint_error_messages = {
                 "check_inn": "The INN field violates format constraints.",
                 "check_cor_account": "The Correspondent Account must be exactly 20 digits.",
                 "check_phone": "The Phone number must follow the format '7XXXXXXXXXX'.",
                 "check_phone_helpdesk": "The Helpdesk Phone number must follow the format '7XXXXXXXXXX'.",
             }
-
-            # Use the mapped message or fallback to a generic error message
             error_message = constraint_error_messages.get(
                 constraint_name, "A database constraint was violated."
             )
-            raise IntegrityError(error_message)  # Pass the error message to the route
+            raise IntegrityError(error_message)
         except Exception as e:
             logger.error("Error occurred while creating legal entity", exc_info=True)
             raise
@@ -94,6 +88,21 @@ class LegalEntityCRUD:
             else:
                 logger.warning(f"LegalEntity with ID {legal_entity_id} not found")
                 raise LegalEntityNotFoundError(f"LEGAL_ENTITY_NOT_FOUND: {legal_entity_id}")
+        except IntegrityError as e:
+                logger.error("Integrity Error occurred while patching legal entity with ID {legal_entity_id}", exc_info=True)
+                constraint_name = None
+                if hasattr(e.orig, "diag") and e.orig.diag.constraint_name:
+                    constraint_name = e.orig.diag.constraint_name
+                constraint_error_messages = {
+                    "check_inn": "The INN field violates format constraints.",
+                    "check_cor_account": "The Correspondent Account must be exactly 20 digits.",
+                    "check_phone": "The Phone number must follow the format '7XXXXXXXXXX'.",
+                    "check_phone_helpdesk": "The Helpdesk Phone number must follow the format '7XXXXXXXXXX'.",
+                }
+                error_message = constraint_error_messages.get(
+                    constraint_name, "A database constraint was violated."
+                )
+                raise IntegrityError(error_message)
         except Exception as e:
             logger.error(f"Error occurred while patching legal_entity with ID {legal_entity_id}", exc_info=True)
             raise
