@@ -32,4 +32,3 @@ class NewsNotFoundError(DatabaseError):
 
 class NewsUpdateError(DatabaseError):
     pass
-

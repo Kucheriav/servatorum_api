@@ -4,6 +4,7 @@ from app.database import connection
 from app.models.legal_entity_model import LegalEntity
 from app.schemas.legal_entity_schema import *
 from app.errors_custom_types import *
+from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger("app.legal_entity_crud")
 
@@ -31,6 +32,13 @@ class LegalEntityCRUD:
             await session.refresh(new_legal_entity)
             logger.info(f"Legal entity created successfully with ID: {new_legal_entity.id}")
             return new_legal_entity
+        except IntegrityError as e:
+            # Extract the constraint name from the exception if available
+            constraint_name = None
+            if hasattr(e.orig, "diag") and e.orig.diag.constraint_name:
+                constraint_name = e.orig.diag.constraint_name
+            logger.error(f"SQL IntegrityError occurred: {e}", exc_info=True)
+            raise Exception(f"Constraint violation: {constraint_name}")
         except Exception as e:
             logger.error("Error occurred while creating legal entity", exc_info=True)
             raise
