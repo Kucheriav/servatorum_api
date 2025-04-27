@@ -24,10 +24,6 @@ def connection(method):
                 result = await method(*args, session=session, **kwargs)
                 logger.info(f"Method {method.__name__} completed successfully")
                 return result
-            except Exception as e:
-                logger.error(f"Error occurred in method {method.__name__}")
-                await session.rollback()
-                raise e
             finally:
                 logger.info(f"Database session for method {method.__name__} closed")
 

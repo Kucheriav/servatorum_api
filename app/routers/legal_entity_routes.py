@@ -18,12 +18,10 @@ async def create_legal_entity(legal_entity: LegalEntityCreate):
     logger.info("Request received to create a legal entity")
     try:
         result = await legal_entity_crud.create_legal_entity(legal_entity=legal_entity)
-        logger.info("Legal entity created successfully")
         return result
     except IntegrityError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error("Unexpected error while creating legal entity")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -32,13 +30,10 @@ async def get_legal_entity(legal_entity_id: int):
     logger.info(f"Request received to get legal entity with ID: {legal_entity_id}")
     try:
         legal_entity = await legal_entity_crud.get_legal_entity(legal_entity_id=legal_entity_id)
-        logger.info(f"Legal entity with ID {legal_entity_id} retrieved successfully")
         return legal_entity
     except LegalEntityNotFoundError as e:
-        logger.warning(f"Legal entity with ID {legal_entity_id} not found")
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        logger.error("Unexpected error while getting legal entity")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -48,15 +43,12 @@ async def patch_legal_entity(legal_entity_id: int, legal_entity_params_to_patch:
     try:
         patched_legal_entity = await legal_entity_crud.patch_legal_entity(legal_entity_id=legal_entity_id,
                                                                       params=legal_entity_params_to_patch)
-        logger.info(f"Legal entity with ID {legal_entity_id} patched successfully")
         return patched_legal_entity
     except LegalEntityNotFoundError as e:
-        logger.warning(f"Legal entity with ID {legal_entity_id} not found for patching")
         raise HTTPException(status_code=404, detail=str(e))
     except IntegrityError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        logger.error("Unexpected error while patching legal entity")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -65,11 +57,8 @@ async def delete_legal_entity(legal_entity_id: int):
     logger.info(f"Request received to delete legal entity with ID: {legal_entity_id}")
     try:
         await legal_entity_crud.delete_legal_entity(legal_entity_id=legal_entity_id)
-        logger.info(f"Legal entity with ID {legal_entity_id} deleted successfully")
         return {"message": "Legal entity deleted"}
     except LegalEntityNotFoundError as e:
-        logger.warning(f"Legal entity with ID {legal_entity_id} not found for deleting")
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        logger.error("Unexpected error while deleting legal entity")
         raise HTTPException(status_code=500, detail=str(e))
