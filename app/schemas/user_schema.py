@@ -20,16 +20,16 @@ class UserCreate(BaseModel):
     profile_picture: Optional[str] = None
 
 
-    @staticmethod
+    @classmethod
     @field_validator('phone')
-    def phone_format(v):
+    def phone_format(cls, v):
         if not re.match(r'^7\d{9}$', v):
             raise ValueError('Неправильный формат телефона')
         return v
 
-    @staticmethod
+    @classmethod
     @field_validator('password')
-    def password_min_length(v):
+    def password_min_length(cls, v):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
         return v
