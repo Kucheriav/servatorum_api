@@ -30,18 +30,10 @@ async def create_legal_entity(legal_entity: LegalEntityCreate):
             error_messages.append(f"Ошибка в поле '{field}': {message}")
         raise HTTPException(status_code=422, detail=error_messages)
     except IntegrityError as e:
-        constraint_error_messages = {
-            "check_inn": "The INN field violates format constraints.",
-            "check_cor_account": "The Correspondent Account must be exactly 20 digits.",
-            "check_phone": "The Phone number must follow the format '7XXXXXXXXXX'.",
-            "check_phone_helpdesk": "The Helpdesk Phone number must follow the format '7XXXXXXXXXX'.",
-        }
-        constraint_name = e.args[0]
-        error_message = constraint_error_messages.get(constraint_name, "A database constraint was violated.")
-        raise HTTPException(status_code=400, detail=error_message)
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         logger.error("Unexpected error while creating legal entity", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal Server Error")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/get_legal_entity/{legal_entity_id}", response_model=LegalEntityResponse)

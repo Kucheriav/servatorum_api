@@ -25,7 +25,7 @@ def connection(method):
                 logger.info(f"Method {method.__name__} completed successfully")
                 return result
             except Exception as e:
-                logger.error(f"Error occurred in method {method.__name__}", exc_info=True)
+                logger.error(f"Error occurred in method {method.__name__}")
                 await session.rollback()
                 raise e
             finally:

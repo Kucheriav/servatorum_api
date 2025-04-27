@@ -33,12 +33,26 @@ class LegalEntityCRUD:
             logger.info(f"Legal entity created successfully with ID: {new_legal_entity.id}")
             return new_legal_entity
         except IntegrityError as e:
-            # Extract the constraint name from the exception if available
             constraint_name = None
             if hasattr(e.orig, "diag") and e.orig.diag.constraint_name:
                 constraint_name = e.orig.diag.constraint_name
-            logger.error(f"SQL IntegrityError occurred: {e}", exc_info=True)
-            raise Exception(f"Constraint violation: {constraint_name}")
+                logger.error(f"Constraint violation: {constraint_name}")
+            else:
+                logger.error(f"Integrity error without constraint name: {str(e.orig)}")
+
+            # Map specific constraint names to user-friendly messages
+            constraint_error_messages = {
+                "check_inn": "The INN field violates format constraints.",
+                "check_cor_account": "The Correspondent Account must be exactly 20 digits.",
+                "check_phone": "The Phone number must follow the format '7XXXXXXXXXX'.",
+                "check_phone_helpdesk": "The Helpdesk Phone number must follow the format '7XXXXXXXXXX'.",
+            }
+
+            # Use the mapped message or fallback to a generic error message
+            error_message = constraint_error_messages.get(
+                constraint_name, "A database constraint was violated."
+            )
+            raise IntegrityError(error_message)  # Pass the error message to the route
         except Exception as e:
             logger.error("Error occurred while creating legal entity", exc_info=True)
             raise
