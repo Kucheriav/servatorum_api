@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import logging
-from .logging_config import setup_logging
+from app.logging_config import setup_logging
 from app.database import engine, Base
 from app.routers import user_routes, legal_entity_routes, fundraising_routes, news_routes
 
@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
 setup_logging()
 logger = logging.getLogger(__name__)
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, debug=True)
 logger.info("FastAPI starting...")
 app.include_router(user_routes.router, prefix="/users", tags=["users"])
 app.include_router(legal_entity_routes.router, prefix="/legal_entity", tags=["legal_entity"])

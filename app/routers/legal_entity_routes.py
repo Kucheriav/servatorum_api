@@ -11,7 +11,6 @@ legal_entity_crud = LegalEntityCRUD()
 # Create a logger specific to this module
 logger = logging.getLogger("app.legal_entity_router")
 
-# TODO optimize exceptions chain
 
 @router.post("/create_legal_entity", response_model=LegalEntityResponse)
 async def create_legal_entity(legal_entity: LegalEntityCreate):

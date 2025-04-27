@@ -3,7 +3,11 @@ from typing import Optional, Dict, Any
 from datetime import date
 import re
 
+import logging
+from app.logging_config import setup_logging
 
+setup_logging()
+logger = logging.getLogger(__name__)
 
 class UserCreate(BaseModel):
     login: str
@@ -23,6 +27,7 @@ class UserCreate(BaseModel):
     @classmethod
     @field_validator('phone')
     def phone_format(cls, v):
+        logger.info(f"Validating phone: {v}")
         if not re.match(r'^7\d{9}$', v):
             raise ValueError('Неправильный формат телефона')
         return v
@@ -30,6 +35,7 @@ class UserCreate(BaseModel):
     @classmethod
     @field_validator('password')
     def password_min_length(cls, v):
+        logger.info(f"Validating password: {v}")
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
         return v
