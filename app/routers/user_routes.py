@@ -17,7 +17,7 @@ logger = logging.getLogger("app.user_router")
 async def create_user(user: UserCreate):
     logger.info("Request received to create a user")
     try:
-        result = await user_crud.create_user(user)
+        result = await user_crud.create_user(user=user)
         logger.info("User created successfully")
         return result
     except ValidationError as e:
@@ -41,7 +41,7 @@ async def create_user(user: UserCreate):
 @router.get("/get_user/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int):
     logger.info(f"Request received to get user with ID: {user_id}")
-    user = await user_crud.get_user(user_id)
+    user = await user_crud.get_user(user_id=user_id)
     if user:
         logger.info(f"User with ID {user_id} retrieved successfully")
         return user
@@ -63,7 +63,7 @@ async def patch_user(user_id: int, user_params_to_patch: UserPatch):
 @router.delete("/delete_user/{user_id}")
 async def delete_user(user_id: int):
     logger.info(f"Request received to delete user with ID: {user_id}")
-    if await user_crud.delete_user(user_id):
+    if await user_crud.delete_user(user_id=user_id):
         logger.info(f"User with ID {user_id} deleted successfully")
         return {"message": "User deleted"}
     logger.warning(f"User with ID {user_id} not found for deletion")

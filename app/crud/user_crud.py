@@ -57,8 +57,6 @@ class UserCRUD:
 
     @connection
     async def patch_user(self, user_id: int, session, params):
-        logger.info(f"Patching user with ID: {user_id}")
-        logger.info(str(session), '\n'.join(f'{x}:{params[x]}' for x in params))
         try:
             query = select(User).where(User.id == user_id)
             result = await session.execute(query)

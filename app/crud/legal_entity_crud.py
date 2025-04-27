@@ -53,6 +53,30 @@ class LegalEntityCRUD:
             raise
 
     @connection
+    async def patch_legal_entity(self, legal_entity_id: int, session, params):
+        try:
+            query = select(LegalEntity).where(LegalEntity.id == legal_entity_id)
+            result = await session.execute(query)
+            legal_entity_to_patch = result.scalar_one_or_none()
+            if legal_entity_to_patch:
+                for key, value in params.params.items():
+                    if hasattr(legal_entity_to_patch, key):
+                        setattr(legal_entity_to_patch, key, value)
+                        logger.debug(f"Updated field {key} to {value} for LegalEntity ID {legal_entity_id}")
+                    else:
+                        logger.warning(f"Field {key} not found in LegalEntity model")
+                        raise LegalEntityUpdateError(f"FIELD_NOT_FOUND: {key}")
+                await session.commit()
+                logger.info(f"LegalEntity with ID {legal_entity_id} patched successfully")
+                return legal_entity_to_patch
+            else:
+                logger.warning(f"LegalEntity with ID {legal_entity_id} not found")
+                raise LegalEntityNotFoundError(f"LEGAL_ENTITY_NOT_FOUND: {legal_entity_id}")
+        except Exception as e:
+            logger.error(f"Error occurred while patching legal_entity with ID {legal_entity_id}", exc_info=True)
+            raise
+
+    @connection
     async def delete_legal_entity(self, legal_entity_id: int, session):
         logger.info(f"Deleting legal entity with ID: {legal_entity_id}")
         try:

@@ -15,7 +15,7 @@ logger = logging.getLogger("app.news_router")
 async def create_news(news: NewsCreate):
     logger.info("Request received to create news")
     try:
-        result = await news_crud.create_news(news)
+        result = await news_crud.create_news(news=news)
         logger.info("News created successfully")
         return result
     except ValidationError as e:
@@ -37,7 +37,7 @@ async def create_news(news: NewsCreate):
 @router.get("/get_news/{news_id}", response_model=NewsResponse)
 async def get_news(news_id: int):
     logger.info(f"Request received to get news with ID: {news_id}")
-    news_item = await news_crud.get_news(news_id)
+    news_item = await news_crud.get_news(news_id=news_id)
     if news_item:
         logger.info(f"News item with ID {news_id} retrieved successfully")
         return news_item
@@ -54,10 +54,11 @@ async def get_news(page: int = 1, page_size: int = 10):
     logger.warning("No news found for the requested page")
     raise HTTPException(status_code=404, detail="Новости не найдены")
 
+
 @router.patch("/patch_news/{news_id}", response_model=NewsResponse)
 async def patch_news(news_id: int, news_params_to_patch: NewsPatch):
     logger.info(f"Request received to patch news with ID: {news_id}")
-    patched_news = await news_crud.patch_news(news_id, news_params_to_patch)
+    patched_news = await news_crud.patch_news(news_id=news_id, params=news_params_to_patch)
     if patched_news:
         logger.info(f"News item with ID {news_id} patched successfully")
         return patched_news
@@ -67,7 +68,7 @@ async def patch_news(news_id: int, news_params_to_patch: NewsPatch):
 @router.delete("/delete_news/{news_id}")
 async def delete_news(news_id: int):
     logger.info(f"Request received to delete news with ID: {news_id}")
-    if await news_crud.delete_news(news_id):
+    if await news_crud.delete_news(news_id=news_id):
         logger.info(f"News item with ID {news_id} deleted successfully")
         return {"message": "Новость удалена"}
     logger.warning(f"News item with ID {news_id} not found for deletion")

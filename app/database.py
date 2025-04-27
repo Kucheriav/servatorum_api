@@ -14,22 +14,12 @@ engine = create_async_engine(url=DATABASE_URL)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 
+
+# if problems with args, kwargs, multiple session arg etc., check that all params are key-word args in crud
 def connection(method):
     async def wrapper(*args, **kwargs):
         logger.info(f"Opening a new database session for method: {method.__name__}")
-        logger.info(' '.join(f'{x} {type(x)}' for x in args))
-        logger.info('\n'.join(f'{x}:{kwargs[x]}' for x in kwargs))
-
-        if 'session' in kwargs:
-            logger.info(f"Session already provided in kwargs for method: {method.__name__}")
-            return await method(*args, **kwargs)
-        for arg in args:
-            if isinstance(arg, AsyncSession):
-                logger.info(f"Session already provided as a positional argument for method: {method.__name__}")
-                return await method(*args, **kwargs)
-
         async with async_session_maker() as session:
-
             try:
                 result = await method(*args, session=session, **kwargs)
                 logger.info(f"Method {method.__name__} completed successfully")
@@ -43,7 +33,6 @@ def connection(method):
 
     return wrapper
 
-# Base class for all models
 class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())

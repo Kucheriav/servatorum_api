@@ -72,6 +72,32 @@ class NewsCRUD:
             logger.error(f"Error occurred while fetching paginated news", exc_info=True)
             raise
 
+
+    @connection
+    async def patch_news(self, news_id: int, session, params):
+        try:
+            query = select(News).where(News.id == news_id)
+            result = await session.execute(query)
+            news_to_patch = result.scalar_one_or_none()
+            if news_to_patch:
+                for key, value in params.params.items():
+                    if hasattr(news_to_patch, key):
+                        setattr(news_to_patch, key, value)
+                        logger.debug(f"Updated field {key} to {value} for news ID {news_id}")
+                    else:
+                        logger.warning(f"Field {key} not found in News model")
+                        raise NewsUpdateError(f"FIELD_NOT_FOUND: {key}")
+                await session.commit()
+                logger.info(f"News with ID {news_id} patched successfully")
+                return news_to_patch
+            else:
+                logger.warning(f"News with ID {news_id} not found")
+                raise NewsNotFoundError(f"NEWS_NOT_FOUND: {news_id}")
+        except Exception as e:
+            logger.error(f"Error occurred while patching news with ID {news_id}", exc_info=True)
+            raise
+
+
     @connection
     async def delete_news(self, news_id: int, session):
         logger.info(f"Deleting news with ID: {news_id}")

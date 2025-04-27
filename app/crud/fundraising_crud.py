@@ -48,6 +48,30 @@ class FundraisingCRUD:
             raise
 
     @connection
+    async def patch_fundraising(self, fundraising_id: int, session, params):
+        try:
+            query = select(Fundraising).where(Fundraising.id == fundraising_id)
+            result = await session.execute(query)
+            fundraising_to_patch = result.scalar_one_or_none()
+            if fundraising_to_patch:
+                for key, value in params.params.items():
+                    if hasattr(fundraising_to_patch, key):
+                        setattr(fundraising_to_patch, key, value)
+                        logger.debug(f"Updated field {key} to {value} for fundraising ID {fundraising_id}")
+                    else:
+                        logger.warning(f"Field {key} not found in Fundraising model")
+                        raise FundraisingUpdateError(f"FIELD_NOT_FOUND: {key}")
+                await session.commit()
+                logger.info(f"Fundraising with ID {fundraising_id} patched successfully")
+                return fundraising_to_patch
+            else:
+                logger.warning(f"Fundraising with ID {fundraising_id} not found")
+                raise FundraisingNotFoundError(f"FUNDRAISING_NOT_FOUND: {fundraising_id}")
+        except Exception as e:
+            logger.error(f"Error occurred while patching fundraising with ID {fundraising_id}", exc_info=True)
+            raise
+
+    @connection
     async def delete_fundraising(self, fundraising_id: int, session):
         logger.info(f"Deleting fundraising with ID: {fundraising_id}")
         try:

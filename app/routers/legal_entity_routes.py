@@ -17,7 +17,7 @@ logger = logging.getLogger("app.legal_entity_router")
 async def create_legal_entity(legal_entity: LegalEntityCreate):
     logger.info("Request received to create a legal entity")
     try:
-        result = await legal_entity_crud.create_legal_entity(legal_entity)
+        result = await legal_entity_crud.create_legal_entity(legal_entity=legal_entity)
         logger.info("Legal entity created successfully")
         return result
     except ValidationError as e:
@@ -40,7 +40,7 @@ async def create_legal_entity(legal_entity: LegalEntityCreate):
 @router.get("/get_legal_entity/{legal_entity_id}", response_model=LegalEntityResponse)
 async def get_legal_entity(legal_entity_id: int):
     logger.info(f"Request received to get legal entity with ID: {legal_entity_id}")
-    legal_entity = await legal_entity_crud.get_legal_entity(legal_entity_id)
+    legal_entity = await legal_entity_crud.get_legal_entity(legal_entity_id=legal_entity_id)
     if legal_entity:
         logger.info(f"Legal entity with ID {legal_entity_id} retrieved successfully")
         return legal_entity
@@ -51,7 +51,8 @@ async def get_legal_entity(legal_entity_id: int):
 @router.patch("/patch_legal_entity/{legal_entity_id}", response_model=LegalEntityResponse)
 async def patch_legal_entity(legal_entity_id: int, legal_entity_params_to_patch: LegalEntityPatch):
     logger.info(f"Request received to patch legal entity with ID: {legal_entity_id}")
-    patched_legal_entity = await legal_entity_crud.patch_legal_entity(legal_entity_id, legal_entity_params_to_patch)
+    patched_legal_entity = await legal_entity_crud.patch_legal_entity(legal_entity_id=legal_entity_id,
+                                                                      params=legal_entity_params_to_patch)
     if patched_legal_entity:
         logger.info(f"Legal entity with ID {legal_entity_id} patched successfully")
         return patched_legal_entity
@@ -62,7 +63,7 @@ async def patch_legal_entity(legal_entity_id: int, legal_entity_params_to_patch:
 @router.delete("/delete_legal_entity/{legal_entity_id}")
 async def delete_legal_entity(legal_entity_id: int):
     logger.info(f"Request received to delete legal entity with ID: {legal_entity_id}")
-    if await legal_entity_crud.delete_legal_entity(legal_entity_id):
+    if await legal_entity_crud.delete_legal_entity(legal_entity_id=legal_entity_id):
         logger.info(f"Legal entity with ID {legal_entity_id} deleted successfully")
         return {"message": "Legal entity deleted"}
     logger.warning(f"Legal entity with ID {legal_entity_id} not found for deletion")
