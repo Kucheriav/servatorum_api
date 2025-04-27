@@ -32,13 +32,7 @@ class UserCRUD:
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)  # Refresh to get the generated ID
-            # logger.info(f"User created successfully with ID: {new_user.id}")
-            log_message = ", ".join(
-                f"{field.name}: {getattr(new_user, field.name)}"
-                for field in new_user.__table__.columns
-            )
-
-            logger.info(f"User created successfully with ID: {new_user.id}. User details: {log_message}")
+            logger.info(f"User created successfully with ID: {new_user.id}")
             return new_user
         except Exception as e:
             logger.error("Error occurred while creating user", exc_info=True)
