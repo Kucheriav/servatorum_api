@@ -39,7 +39,7 @@ class UserCRUD:
             )
 
             logger.info(f"User created successfully with ID: {new_user.id}. User details: {log_message}")
-            return user
+            return new_user
         except Exception as e:
             logger.error("Error occurred while creating user", exc_info=True)
             raise
