@@ -4,7 +4,7 @@ from datetime import date
 import re
 
 
-# помечаем необязательные first_name: Optional[str] = None, чтобы вместо непереданных появилось значение по умлочанию
+
 class UserCreate(BaseModel):
     login: str
     password: str
