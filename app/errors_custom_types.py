@@ -32,3 +32,6 @@ class NewsNotFoundError(DatabaseError):
 
 class NewsUpdateError(DatabaseError):
     pass
+
+class ConstrictionViolatedError(DatabaseError):
+    pass

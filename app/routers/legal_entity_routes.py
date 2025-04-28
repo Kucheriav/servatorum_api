@@ -8,7 +8,7 @@ import logging
 router = APIRouter()
 legal_entity_crud = LegalEntityCRUD()
 
-# Create a logger specific to this module
+
 logger = logging.getLogger("app.legal_entity_router")
 
 
@@ -18,7 +18,7 @@ async def create_legal_entity(legal_entity: LegalEntityCreate):
     try:
         result = await legal_entity_crud.create_legal_entity(legal_entity=legal_entity)
         return result
-    except IntegrityError as e:
+    except ConstrictionViolatedError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

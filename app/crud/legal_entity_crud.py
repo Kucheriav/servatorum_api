@@ -44,9 +44,9 @@ class LegalEntityCRUD:
                 "check_phone_helpdesk": "The Helpdesk Phone number must follow the format '7XXXXXXXXXX'.",
             }
             error_message = constraint_error_messages.get(
-                constraint_name, "A database constraint was violated."
+                constraint_name, str(e.orig)
             )
-            raise IntegrityError(error_message)
+            raise ConstrictionViolatedError(error_message)
         except Exception as e:
             logger.error("Error occurred while creating legal entity", exc_info=True)
             raise
@@ -75,7 +75,7 @@ class LegalEntityCRUD:
             result = await session.execute(query)
             legal_entity_to_patch = result.scalar_one_or_none()
             if legal_entity_to_patch:
-                for key, value in params.params.items():
+                for key, value in params.__dict__.items():
                     if hasattr(legal_entity_to_patch, key):
                         setattr(legal_entity_to_patch, key, value)
                         logger.debug(f"Updated field {key} to {value} for LegalEntity ID {legal_entity_id}")
@@ -89,20 +89,20 @@ class LegalEntityCRUD:
                 logger.warning(f"LegalEntity with ID {legal_entity_id} not found")
                 raise LegalEntityNotFoundError(f"LEGAL_ENTITY_NOT_FOUND: {legal_entity_id}")
         except IntegrityError as e:
-                logger.error("Integrity Error occurred while patching legal entity with ID {legal_entity_id}", exc_info=True)
-                constraint_name = None
-                if hasattr(e.orig, "diag") and e.orig.diag.constraint_name:
-                    constraint_name = e.orig.diag.constraint_name
-                constraint_error_messages = {
-                    "check_inn": "The INN field violates format constraints.",
-                    "check_cor_account": "The Correspondent Account must be exactly 20 digits.",
-                    "check_phone": "The Phone number must follow the format '7XXXXXXXXXX'.",
-                    "check_phone_helpdesk": "The Helpdesk Phone number must follow the format '7XXXXXXXXXX'.",
-                }
-                error_message = constraint_error_messages.get(
-                    constraint_name, "A database constraint was violated."
-                )
-                raise IntegrityError(error_message)
+            logger.error("Integrity Error occurred while creating legal entity", exc_info=True)
+            constraint_name = None
+            if hasattr(e.orig, "diag") and e.orig.diag.constraint_name:
+                constraint_name = e.orig.diag.constraint_name
+            constraint_error_messages = {
+                "check_inn": "The INN field violates format constraints.",
+                "check_cor_account": "The Correspondent Account must be exactly 20 digits.",
+                "check_phone": "The Phone number must follow the format '7XXXXXXXXXX'.",
+                "check_phone_helpdesk": "The Helpdesk Phone number must follow the format '7XXXXXXXXXX'.",
+            }
+            error_message = constraint_error_messages.get(
+                constraint_name, str(e.orig)
+            )
+            raise ConstrictionViolatedError(error_message)
         except Exception as e:
             logger.error(f"Error occurred while patching legal_entity with ID {legal_entity_id}", exc_info=True)
             raise
