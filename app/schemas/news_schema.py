@@ -12,15 +12,15 @@ class NewsCreate(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    @staticmethod
     @field_validator('title')
+    @staticmethod
     def title_len(v):
         if not(0 < v < 256):
             raise ValueError('Incorrect field length. Must be [1 .. 255]')
         return v
 
-    @staticmethod
     @field_validator('description')
+    @staticmethod
     def description_len(v):
         if not(0 < v < 1001):
             raise ValueError('Incorrect field length. Must be [1 .. 1000]')
@@ -54,8 +54,8 @@ class NewsPatch(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    @staticmethod
     @field_validator('params')
+    @staticmethod
     def validate_individual_fields(v):
         for key in v:
             if key == 'title':

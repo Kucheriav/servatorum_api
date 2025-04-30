@@ -13,15 +13,15 @@ class FundraisingCreate(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    @staticmethod
     @field_validator('start_date')
+    @staticmethod
     def start_date_not_before_today(v):
         if v < datetime.datetime.now().date():
             raise ValueError('Start date cannot be before today')
         return v
 
-    @staticmethod
     @field_validator('finish_date')
+    @staticmethod
     def finish_date_not_before_today(v):
         if v < datetime.datetime.now().date():
             raise ValueError('Finish date cannot be before today')
@@ -57,8 +57,8 @@ class FundraisingPatch(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    @staticmethod
     @field_validator('params')
+    @staticmethod
     def validate_individual_fields(v):
         for key in v:
             if key == 'start_date':
