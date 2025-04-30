@@ -75,7 +75,7 @@ class LegalEntityCRUD:
             result = await session.execute(query)
             legal_entity_to_patch = result.scalar_one_or_none()
             if legal_entity_to_patch:
-                for key, value in params.__dict__.items():
+                for key, value in params.params.items():
                     if hasattr(legal_entity_to_patch, key):
                         setattr(legal_entity_to_patch, key, value)
                         logger.debug(f"Updated field {key} to {value} for LegalEntity ID {legal_entity_id}")

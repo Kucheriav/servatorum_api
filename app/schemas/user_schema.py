@@ -64,4 +64,11 @@ class UserPatch(BaseModel):
                 UserCreate.phone_format(v[key])
             elif key == 'password':
                 UserCreate.password_min_length(v[key])
+            elif key == 'date_of_birth':
+                try:
+                    parsed_date = datetime.datetime.strptime(v[key], '%Y-%m-%d').date()
+                    # parsed_date = datetime.strptime(v[key], '%Y-%m-%d').date()
+                    v[key] = parsed_date
+                except ValueError:
+                    raise ValueError(f"Invalid date format for key '{key}'. Expected format: YYYY-MM-DD")
         return v
