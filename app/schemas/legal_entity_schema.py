@@ -56,11 +56,11 @@ class LegalEntityPatch(BaseModel):
     description: str | None = None
     logo: str | None = None
     #photo: str | None = None
-    inn: str | None = Field(None, description="INN must be exactly 10 digits.", min_length=10, max_length=10, pattern=r"^\d{10}$")
-    bik: str | None = Field(None, description="BIK must be exactly 9 digits.", min_length=9, max_length=9, pattern=r"^\d{9}$")
-    cor_account: str | None = Field(None, description="Correspondent Account must be exactly 20 digits.", min_length=20, max_length=20, pattern=r"^\d{20}$")
+    inn: str | None = Field(default=None, description="INN must be exactly 10 digits.", min_length=10, max_length=10, pattern=r"^\d{10}$")
+    bik: str | None = Field(default=None, description="BIK must be exactly 9 digits.", min_length=9, max_length=9, pattern=r"^\d{9}$")
+    cor_account: str | None = Field(default=None, description="Correspondent Account must be exactly 20 digits.", min_length=20, max_length=20, pattern=r"^\d{20}$")
     address: str | None = None
     address_reg: str | None = None
-    phone: str | None = Field(None, description="Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{10}$")
-    phone_helpdesk: str | None = Field(None, description="Helpdesk Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{10}$")
-    entity_type: Literal['company', 'foundation']| None = Field(None, description="Entity type must be 'company' or 'foundation'.")
+    phone: str | None = Field(default=None, description="Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{10}$")
+    phone_helpdesk: str | None = Field(default=None, description="Helpdesk Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{10}$")
+    entity_type: Literal['company', 'foundation']| None = Field(default='company', description="Entity type must be 'company' or 'foundation'.")

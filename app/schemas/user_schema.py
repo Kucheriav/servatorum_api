@@ -21,22 +21,18 @@ class UserCreate(BaseModel):
     phone: str
     profile_picture: Optional[str] = None
 
-    def __init__(self, /, **data: Any):
 
-        super().__init__(**data)
-        print('init')
-
-    @classmethod
     @field_validator('phone')
+    @classmethod
     def phone_format(cls, v):
-        print('f"Validating phone: {v}"')
         logger.info(f"Validating phone: {v}")
-        if not re.match(r'^7\d{9}$', v):
+        if not re.match(r'^7\d{10}$', v):
             raise ValueError('Неправильный формат телефона')
         return v
 
-    @classmethod
+
     @field_validator('password')
+    @classmethod
     def password_min_length(cls, v):
         logger.info(f"Validating password: {v}")
         if len(v) < 8:
@@ -59,8 +55,9 @@ class UserResponse(BaseModel):
 class UserPatch(BaseModel):
     params: Dict[str, Any]
 
-    @staticmethod
+
     @field_validator('params')
+    @staticmethod
     def validate_individual_fields(v):
         for key in v:
             if key == 'phone':
