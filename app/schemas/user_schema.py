@@ -66,9 +66,9 @@ class UserPatch(BaseModel):
                 UserCreate.password_min_length(v[key])
             elif key == 'date_of_birth':
                 try:
-                    parsed_date = datetime.datetime.strptime(v[key], '%Y-%m-%d').date()
+                    temp = datetime.datetime.strptime(v[key], '%Y-%m-%d').date()
                     # parsed_date = datetime.strptime(v[key], '%Y-%m-%d').date()
-                    v[key] = parsed_date
+                    v[key] = temp
                 except ValueError:
                     raise ValueError(f"Invalid date format for key '{key}'. Expected format: YYYY-MM-DD")
         return v
