@@ -70,6 +70,7 @@ class UserCRUD:
                         logger.warning(f"Field {key} not found in User model")
                         raise UserUpdateError(f"FIELD_NOT_FOUND: {key}")
                 await session.commit()
+                await session.refresh(user_to_patch)
                 logger.info(f"User with ID {user_id} patched successfully")
                 return user_to_patch
             else:
@@ -78,6 +79,7 @@ class UserCRUD:
         except Exception as e:
             logger.error(f"Error occurred while patching user with ID {user_id}", exc_info=True)
             raise
+
 
     @connection
     async def delete_user(self, user_id: int, session):

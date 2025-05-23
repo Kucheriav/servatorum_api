@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, ValidationError
 from typing import Dict, Any, Literal, Optional
 import re
 import logging
@@ -24,35 +24,35 @@ class LegalEntityCreate(BaseModel):
     @staticmethod
     def phone_format(v):
         if not re.match(r'^7\d{10}$', v):
-            raise ValueError('Неправильный формат телефона')
+            raise ValidationError('Неправильный формат телефона')
         return v
 
     @field_validator('bik')
     @staticmethod
     def bik_format(v):
         if not re.match(r'^[0-9]{9}$', v):
-            raise ValueError('Неправильный формат БИК')
+            raise ValidationError('Неправильный формат БИК')
         return v
 
     @field_validator('inn')
     @staticmethod
     def inn_format(v):
         if not re.match(r'^[0-9]{10}$', v):
-            raise ValueError('Неправильный формат ИНН')
+            raise ValidationError('Неправильный формат ИНН')
         return v
 
     @field_validator('cor_account')
     @staticmethod
     def cor_account_format(v):
         if not re.match(r'^[0-9]{20}$', v):
-            raise ValueError('Неправильный формат корреспондентского счета')
+            raise ValidationError('Неправильный формат корреспондентского счета')
         return v
 
     @field_validator('entity_type')
     @staticmethod
     def entity_type_format(v):
         if v not in ['company', 'foundation']:
-            raise ValueError('Неправильный тип юридического лица')
+            raise ValidationError('Неправильный тип юридического лица')
         return v
 
 

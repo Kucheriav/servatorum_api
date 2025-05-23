@@ -8,6 +8,7 @@ import binascii
 
 
 class User(Base):
+    __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     login = Column(String, nullable=False)
     _password = Column(String, nullable=False)
@@ -20,6 +21,7 @@ class User(Base):
     address = Column(String)
     email = Column(String, nullable=False, unique=True)
     phone = Column(String, nullable=False)
+    balance = Column(Float, default=0.0)
     profile_picture = Column(String)
 
     # fundraisings = relationship("Fundraising", back_populates="owner")
@@ -46,12 +48,14 @@ class User(Base):
 
 
 class UserCompanyRelation(Base):
+    __tablename__ = "user_company_relations"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     company_id = Column(Integer, ForeignKey('legalentitys.id'))
 
 
 class UserMeta(Base):
+    __tablename__ = "user_meta"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
     prefer_help = Column(String)
@@ -59,6 +63,7 @@ class UserMeta(Base):
 
 
 class UserDonation(Base):
+    __tablename__ = "user_donations"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     fundraising_id = Column(Integer, ForeignKey('fundraisings.id'))
@@ -67,6 +72,7 @@ class UserDonation(Base):
 
 
 class UserToken(Base):
+    __tablename__ = "user_tokens"
     id = Column(Integer, primary_key=True)
     token = Column(String)
     refresh_token = Column(String)

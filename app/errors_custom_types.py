@@ -35,3 +35,6 @@ class NewsUpdateError(DatabaseError):
 
 class ConstrictionViolatedError(DatabaseError):
     pass
+
+class InsufficientFundsError(DatabaseError):
+    pass

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from app.errors_custom_types import *
 from pydantic import ValidationError
 from sqlalchemy import exc
 from app.crud.user_crud import UserCRUD
@@ -8,10 +9,7 @@ import logging
 router = APIRouter()
 user_crud = UserCRUD()
 
-# Create a logger specific to this module
 logger = logging.getLogger("app.user_router")
-
-# TODO optimize exceptions chain
 
 @router.post("/create_user", response_model=UserResponse)
 async def create_user(user: UserCreate):
@@ -37,35 +35,47 @@ async def create_user(user: UserCreate):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-# TODO refactor all GET DELETE routes without using query-strings into Pydantic models (yes, with 1 parameter)
 @router.get("/get_user/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int):
     logger.info(f"Request received to get user with ID: {user_id}")
-    user = await user_crud.get_user(user_id=user_id)
-    if user:
+    try:
+        user = await user_crud.get_user(user_id=user_id)
         logger.info(f"User with ID {user_id} retrieved successfully")
         return user
-    logger.warning(f"User with ID {user_id} not found")
-    raise HTTPException(status_code=404, detail="User not found")
+    except UserNotFoundError:
+        logger.warning(f"User with ID {user_id} not found")
+        raise HTTPException(status_code=404, detail="User not found")
+    except Exception as e:
+        logger.error("Unexpected error while getting user", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.patch("/patch_user/{user_id}", response_model=UserResponse)
 async def patch_user(user_id: int, user_params_to_patch: UserPatch):
     logger.info(f"Request received to patch user with ID: {user_id}")
-    patched_user = await user_crud.patch_user(user_id=user_id, params=user_params_to_patch)
-    if patched_user:
+    try:
+        patched_user = await user_crud.patch_user(user_id=user_id, params=user_params_to_patch)
         logger.info(f"User with ID {user_id} patched successfully")
         return patched_user
-    logger.warning(f"User with ID {user_id} not found for patching")
-    raise HTTPException(status_code=404, detail="User not found")
+    except UserNotFoundError:
+        logger.warning(f"User with ID {user_id} not found")
+        raise HTTPException(status_code=404, detail="User not found")
+    except Exception as e:
+        logger.error("Unexpected error while patching user", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
 @router.delete("/delete_user/{user_id}")
 async def delete_user(user_id: int):
     logger.info(f"Request received to delete user with ID: {user_id}")
-    if await user_crud.delete_user(user_id=user_id):
+    try:
+        await user_crud.delete_user(user_id=user_id)
         logger.info(f"User with ID {user_id} deleted successfully")
         return {"message": "User deleted"}
-    logger.warning(f"User with ID {user_id} not found for deletion")
-    raise HTTPException(status_code=404, detail="User not found")
+    except UserNotFoundError:
+        logger.warning(f"User with ID {user_id} not found")
+        raise HTTPException(status_code=404, detail="User not found")
+    except Exception as e:
+        logger.error("Unexpected error while patching user", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 

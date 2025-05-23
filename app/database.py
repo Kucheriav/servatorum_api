@@ -33,9 +33,3 @@ class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
-
-    @declared_attr.directive
-    def __tablename__(self) -> str:
-        table_name = self.__name__.lower() + 's'
-        logger.debug(f"Table name derived for model {self.__name__}: {table_name}")
-        return table_name

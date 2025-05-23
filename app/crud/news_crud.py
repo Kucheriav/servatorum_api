@@ -88,6 +88,7 @@ class NewsCRUD:
                         logger.warning(f"Field {key} not found in News model")
                         raise NewsUpdateError(f"FIELD_NOT_FOUND: {key}")
                 await session.commit()
+                await session.refresh(news_to_patch)
                 logger.info(f"News with ID {news_id} patched successfully")
                 return news_to_patch
             else:

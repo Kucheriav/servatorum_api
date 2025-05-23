@@ -83,6 +83,7 @@ class LegalEntityCRUD:
                         logger.warning(f"Field {key} not found in LegalEntity model")
                         raise LegalEntityUpdateError(f"FIELD_NOT_FOUND: {key}")
                 await session.commit()
+                await session.refresh(legal_entity_to_patch)
                 logger.info(f"LegalEntity with ID {legal_entity_id} patched successfully")
                 return legal_entity_to_patch
             else:
