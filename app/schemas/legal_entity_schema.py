@@ -47,13 +47,6 @@ class LegalEntityCreate(BaseModel):
             raise ValidationError('Неправильный формат корреспондентского счета')
         return v
 
-    @field_validator('entity_type')
-    @staticmethod
-    def entity_type_format(v):
-        if v not in ['company', 'foundation']:
-            raise ValidationError('Неправильный тип юридического лица')
-        return v
-
 
 class LegalEntityResponse(BaseModel):
     id: int
@@ -85,6 +78,4 @@ class LegalEntityPatch(BaseModel):
                 LegalEntityCreate.inn_format(v[key])
             elif key == 'cor_account':
                 LegalEntityCreate.cor_account_format(v[key])
-            elif key == 'entity_type':
-                LegalEntityCreate.entity_type_format(v[key])
         return v
