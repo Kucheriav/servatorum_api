@@ -54,15 +54,13 @@ class FoundationCRUD:
     async def get_foundation(self, foundation_id: int, session):
         logger.info(f"Fetching foundation with ID: {foundation_id}")
         try:
-            query = select(Foundation).where(Foundation.id == foundation_id)
-            result = await session.execute(query)
-            foundation = result.scalar_one_or_none()
+            foundation = await session.get(Foundation, foundation_id)
             if foundation:
                 logger.info(f"Foundation with ID {foundation_id} retrieved successfully")
                 return foundation
             else:
                 logger.warning(f"Foundation with ID {foundation_id} not found")
-                raise FoundationNotFoundError(f"FOUNDATION_NOT_FOUND: {foundation_id}")
+                raise NotFoundError('Foundation', foundation_id)
         except Exception as e:
             logger.error(f"Error occurred while fetching foundation with ID {foundation_id}", exc_info=True)
             raise
@@ -70,9 +68,7 @@ class FoundationCRUD:
     @connection
     async def patch_foundation(self, foundation_id: int, session, params):
         try:
-            query = select(Foundation).where(Foundation.id == foundation_id)
-            result = await session.execute(query)
-            foundation_to_patch = result.scalar_one_or_none()
+            foundation_to_patch = await session.get(Foundation, foundation_id)
             if foundation_to_patch:
                 for key, value in params.params.items():
                     if hasattr(foundation_to_patch, key):
@@ -87,7 +83,7 @@ class FoundationCRUD:
                 return foundation_to_patch
             else:
                 logger.warning(f"Foundation with ID {foundation_id} not found")
-                raise FoundationNotFoundError(f"FOUNDATION_NOT_FOUND: {foundation_id}")
+                raise NotFoundError('Foundation', foundation_id)
         except IntegrityError as e:
             logger.error("Integrity Error occurred while patching foundation", exc_info=True)
             constraint_name = None
@@ -111,9 +107,7 @@ class FoundationCRUD:
     async def delete_foundation(self, foundation_id: int, session):
         logger.info(f"Deleting foundation with ID: {foundation_id}")
         try:
-            query = select(Foundation).where(Foundation.id == foundation_id)
-            result = await session.execute(query)
-            foundation_to_delete = result.scalar_one_or_none()
+            foundation_to_delete = await session.get(Foundation, foundation_id)
             if foundation_to_delete:
                 await session.delete(foundation_to_delete)
                 await session.commit()
@@ -121,7 +115,7 @@ class FoundationCRUD:
                 return True
             else:
                 logger.warning(f"Foundation with ID {foundation_id} not found")
-                raise FoundationNotFoundError(f"FOUNDATION_NOT_FOUND: {foundation_id}")
+                raise NotFoundError('Foundation', foundation_id)
         except Exception as e:
             logger.error(f"Error occurred while deleting foundation with ID {foundation_id}", exc_info=True)
             raise

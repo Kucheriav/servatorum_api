@@ -33,15 +33,13 @@ class NewsCRUD:
     async def get_news(self, news_id: int, session):
         logger.info(f"Fetching news with ID: {news_id}")
         try:
-            query = select(News).where(News.id == news_id)
-            result = await session.execute(query)
-            news_item = result.scalar_one_or_none()
+            news_item = await session.get(News, news_id)
             if news_item:
                 logger.info(f"News with ID {news_id} retrieved successfully")
                 return news_item
             else:
                 logger.warning(f"News with ID {news_id} not found")
-                raise NewsNotFoundError(f"NEWS_NOT_FOUND: {news_id}")
+                raise NotFoundError('News', news_id)
         except Exception as e:
             logger.error(f"Error occurred while fetching news with ID {news_id}", exc_info=True)
             raise
@@ -76,9 +74,7 @@ class NewsCRUD:
     @connection
     async def patch_news(self, news_id: int, session, params):
         try:
-            query = select(News).where(News.id == news_id)
-            result = await session.execute(query)
-            news_to_patch = result.scalar_one_or_none()
+            news_to_patch = await session.get(News, news_id)
             if news_to_patch:
                 for key, value in params.params.items():
                     if hasattr(news_to_patch, key):
@@ -93,7 +89,7 @@ class NewsCRUD:
                 return news_to_patch
             else:
                 logger.warning(f"News with ID {news_id} not found")
-                raise NewsNotFoundError(f"NEWS_NOT_FOUND: {news_id}")
+                raise NotFoundError('News', news_id)
         except Exception as e:
             logger.error(f"Error occurred while patching news with ID {news_id}", exc_info=True)
             raise
@@ -103,9 +99,7 @@ class NewsCRUD:
     async def delete_news(self, news_id: int, session):
         logger.info(f"Deleting news with ID: {news_id}")
         try:
-            query = select(News).where(News.id == news_id)
-            result = await session.execute(query)
-            news_to_delete = result.scalar_one_or_none()
+            news_to_delete = await session.get(News, news_id)
             if news_to_delete:
                 await session.delete(news_to_delete)
                 await session.commit()
@@ -113,7 +107,7 @@ class NewsCRUD:
                 return True
             else:
                 logger.warning(f"News with ID {news_id} not found")
-                raise NewsNotFoundError(f"NEWS_NOT_FOUND: {news_id}")
+                raise NotFoundError('News', news_id)
         except Exception as e:
             logger.error(f"Error occurred while deleting news with ID {news_id}", exc_info=True)
             raise

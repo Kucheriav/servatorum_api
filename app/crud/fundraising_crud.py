@@ -12,7 +12,7 @@ logger = logging.getLogger("app.fundraising_crud")
 class FundraisingCRUD:
     @connection
     async def create_fundraising(self, fundraising: FundraisingCreate, session):
-        logger.info("Creating a new fundraising entry")
+        logger.info("Creating a new fundraising")
         try:
             new_fundraising = Fundraising(
                 title=fundraising.title,
@@ -34,15 +34,13 @@ class FundraisingCRUD:
     async def get_fundraising(self, fundraising_id: int, session):
         logger.info(f"Fetching fundraising with ID: {fundraising_id}")
         try:
-            query = select(Fundraising).where(Fundraising.id == fundraising_id)
-            result = await session.execute(query)
-            fundraising = result.scalar_one_or_none()
+            fundraising = await session.get(Fundraising, fundraising_id)
             if fundraising:
                 logger.info(f"Fundraising with ID {fundraising_id} retrieved successfully")
                 return fundraising
             else:
                 logger.warning(f"Fundraising with ID {fundraising_id} not found")
-                raise FundraisingNotFoundError(f"FUNDRAISING_NOT_FOUND: {fundraising_id}")
+                raise NotFoundError('Fundraising', fundraising_id)
         except Exception as e:
             logger.error(f"Error occurred while fetching fundraising with ID {fundraising_id}", exc_info=True)
             raise
@@ -50,9 +48,7 @@ class FundraisingCRUD:
     @connection
     async def patch_fundraising(self, fundraising_id: int, session, params):
         try:
-            query = select(Fundraising).where(Fundraising.id == fundraising_id)
-            result = await session.execute(query)
-            fundraising_to_patch = result.scalar_one_or_none()
+            fundraising_to_patch = await session.get(Fundraising, fundraising_id)
             if fundraising_to_patch:
                 for key, value in params.params.items():
                     if hasattr(fundraising_to_patch, key):
@@ -67,7 +63,7 @@ class FundraisingCRUD:
                 return fundraising_to_patch
             else:
                 logger.warning(f"Fundraising with ID {fundraising_id} not found")
-                raise FundraisingNotFoundError(f"FUNDRAISING_NOT_FOUND: {fundraising_id}")
+                raise NotFoundError('Fundraising', fundraising_id)
         except Exception as e:
             logger.error(f"Error occurred while patching fundraising with ID {fundraising_id}", exc_info=True)
             raise
@@ -76,9 +72,7 @@ class FundraisingCRUD:
     async def delete_fundraising(self, fundraising_id: int, session):
         logger.info(f"Deleting fundraising with ID: {fundraising_id}")
         try:
-            query = select(Fundraising).where(Fundraising.id == fundraising_id)
-            result = await session.execute(query)
-            fundraising_to_delete = result.scalar_one_or_none()
+            fundraising_to_delete = await session.get(Fundraising, fundraising_id)
             if fundraising_to_delete:
                 await session.delete(fundraising_to_delete)
                 await session.commit()
@@ -86,7 +80,7 @@ class FundraisingCRUD:
                 return True
             else:
                 logger.warning(f"Fundraising with ID {fundraising_id} not found")
-                raise FundraisingNotFoundError(f"FUNDRAISING_NOT_FOUND: {fundraising_id}")
+                raise NotFoundError('Fundraising', fundraising_id)
         except Exception as e:
             logger.error(f"Error occurred while deleting fundraising with ID {fundraising_id}", exc_info=True)
             raise

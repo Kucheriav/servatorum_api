@@ -1,41 +1,22 @@
 class DatabaseError(Exception):
     pass
 
-
-class UserNotFoundError(DatabaseError):
-    pass
-
+class NotFoundError(DatabaseError):
+    def __init__(self, object_type, object_id):
+        self.message = f"{object_type.upper()}_NOT_FOUND: {object_id}"
+        super().__init__(self.message)
 
 class UserUpdateError(DatabaseError):
     pass
 
-
-class CompanyNotFoundError(DatabaseError):
-    pass
-
-
 class CompanyUpdateError(DatabaseError):
     pass
-
-
-class FoundationNotFoundError(DatabaseError):
-    pass
-
 
 class FoundationUpdateError(DatabaseError):
     pass
 
-class FundraisingNotFoundError(DatabaseError):
-    pass
-
-
 class FundraisingUpdateError(DatabaseError):
     pass
-
-
-class NewsNotFoundError(DatabaseError):
-    pass
-
 
 class NewsUpdateError(DatabaseError):
     pass

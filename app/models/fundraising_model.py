@@ -3,6 +3,7 @@ from app.database import Base
 
 
 class Fundraising(Base):
+    __tablename__ = "fundraisings"
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
     description = Column(String)

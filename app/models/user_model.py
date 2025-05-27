@@ -25,7 +25,6 @@ class User(Base):
     profile_picture = Column(String)
 
     # fundraisings = relationship("Fundraising", back_populates="owner")
-    # complaints = relationship("Complaint", back_populates="user")
 
     @property
     def password(self):
@@ -68,14 +67,4 @@ class UserCompanyRelation(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
     company_id = Column(Integer, ForeignKey('legalentitys.id'))
-
-
-
-class UserDonation(Base):
-    __tablename__ = "user_donations"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    fundraising_id = Column(Integer, ForeignKey('fundraisings.id'))
-    amount = Column(Float)
-    date = Column(DateTime)
 

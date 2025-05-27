@@ -1,27 +1,38 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
-from datetime import datetime
+from pydantic import BaseModel, Field, field_validator, ValidationError
+from typing import Optional, List, Literal, Dict, Any
+import enum
 
-class UserWalletTransactionBase(BaseModel):
-    type: str = Field(..., description="Тип операции: deposit или withdrawal")
-    amount: float = Field(..., gt=0, description="Сумма операции")
-    comment: Optional[str] = Field(None, description="Комментарий к операции")
+class WalletCreate(BaseModel):
+    owner_type: Literal['user', 'company', 'foundation'] = Field(..., description="Тип владельца кошелька")
+    owner_id: int = Field(..., gt=0, description="ID владельца кошелька")
+    balance: float = Field(0.0, ge=0, description="Начальный баланс (обычно 0, не может быть отрицательным)")
 
-class UserWalletTransactionCreate(UserWalletTransactionBase):
-    pass
+    @field_validator('owner_type')
+    @staticmethod
+    def owner_type_valid(v):
+        if v not in ['user', 'company', 'foundation']:
+            raise ValidationError("owner_type должен быть 'user', 'company' или 'foundation'")
+        return v
 
-class UserWalletTransactionResponse(UserWalletTransactionBase):
-    id: int
-    user_id: int
-    created_at: datetime
+class WalletResponse(BaseModel):
+    wallet_id: int
+    owner_type: str
+    owner_id: int
+    balance: float
 
     class Config:
         orm_mode = True
 
-class WalletBalanceResponse(BaseModel):
-    user_id: int
-    balance: float
+class WalletPatch(BaseModel):
+    params: Dict[str, Any]
 
-class WalletHistoryResponse(BaseModel):
-    user_id: int
-    history: List[UserWalletTransactionResponse]
+    @field_validator('params')
+    @staticmethod
+    def validate_individual_fields(v):
+        for key in v:
+            if key == 'balance':
+                if v[key] < 0:
+                    raise ValidationError("Баланс не может быть отрицательным")
+            if key == 'owner_type':
+                WalletCreate.owner_type_valid(v[key])
+        return v

@@ -25,10 +25,10 @@ async def create_user(user: UserCreate):
         for error in errors:
             field = error['loc'][-1]
             message = error['msg']
-            error_messages.append(f"Ошибка в поле '{field}': {message}")
+            error_messages.append(f"Error in field '{field}': {message}")
         raise HTTPException(status_code=422, detail=error_messages)
     except exc.IntegrityError:
-        logger.error("Integrity error: possibly duplicate email")
+        logger.error("Integrity error: Email already exists")
         raise HTTPException(status_code=400, detail="Email already exists")
     except Exception as e:
         logger.error("Unexpected error while creating user", exc_info=True)

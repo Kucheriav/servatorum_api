@@ -1,6 +1,4 @@
-from sqlalchemy.future import select
 import logging
-from datetime import datetime
 from app.database import connection
 from app.models.user_model import User
 from app.schemas.user_schema import UserCreate
@@ -28,12 +26,12 @@ class UserCRUD:
                 profile_picture=None
             )
             new_user.set_password(user.password)
-
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)  # Refresh to get the generated ID
             logger.info(f"User created successfully with ID: {new_user.id}")
             return new_user
+
         except Exception as e:
             logger.error("Error occurred while creating user", exc_info=True)
             raise
@@ -42,15 +40,13 @@ class UserCRUD:
     async def get_user(self, user_id: int, session):
         logger.info(f"Fetching user with ID: {user_id}")
         try:
-            query = select(User).where(User.id == user_id)
-            result = await session.execute(query)
-            user = result.scalar_one_or_none()
+            user = await session.get(User, user_id)
             if user:
                 logger.info(f"User with ID {user_id} retrieved successfully")
                 return user
             else:
                 logger.warning(f"User with ID {user_id} not found")
-                raise UserNotFoundError(f"USER_NOT_FOUND: {user_id}")
+                raise NotFoundError('User', user_id)
         except Exception as e:
             logger.error(f"Error occurred while fetching user with ID {user_id}", exc_info=True)
             raise
@@ -58,9 +54,7 @@ class UserCRUD:
     @connection
     async def patch_user(self, user_id: int, session, params):
         try:
-            query = select(User).where(User.id == user_id)
-            result = await session.execute(query)
-            user_to_patch = result.scalar_one_or_none()
+            user_to_patch = await session.get(User, user_id)
             if user_to_patch:
                 for key, value in params.params.items():
                     if hasattr(user_to_patch, key):
@@ -75,7 +69,7 @@ class UserCRUD:
                 return user_to_patch
             else:
                 logger.warning(f"User with ID {user_id} not found")
-                raise UserNotFoundError(f"USER_NOT_FOUND: {user_id}")
+                raise NotFoundError('User', user_id)
         except Exception as e:
             logger.error(f"Error occurred while patching user with ID {user_id}", exc_info=True)
             raise
@@ -85,9 +79,7 @@ class UserCRUD:
     async def delete_user(self, user_id: int, session):
         logger.info(f"Deleting user with ID: {user_id}")
         try:
-            query = select(User).where(User.id == user_id)
-            result = await session.execute(query)
-            user_to_delete = result.scalar_one_or_none()
+            user_to_delete = await session.get(User, user_id)
             if user_to_delete:
                 await session.delete(user_to_delete)
                 await session.commit()
@@ -95,7 +87,7 @@ class UserCRUD:
                 return True
             else:
                 logger.warning(f"User with ID {user_id} not found")
-                raise UserNotFoundError(f"USER_NOT_FOUND: {user_id}")
+                raise NotFoundError('User', user_id)
         except Exception as e:
             logger.error(f"Error occurred while deleting user with ID {user_id}", exc_info=True)
             raise
