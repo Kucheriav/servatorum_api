@@ -20,6 +20,7 @@ class Fundraising(Base):
     )
 
 class FundraisingFiles(Base):
+    __tablename__ = "fundraising_files"
     id = Column(Integer, primary_key=True, index=True)
     fundrise_id = Column(Integer, ForeignKey('users.id'))
     name = Column(String)
