@@ -50,7 +50,6 @@ class UserResponse(BaseModel):
     date_of_birth: Optional[datetime.date] = None
     gender: Optional[str] = None
     city: Optional[str] = None
-    balance = float
 
 
 class UserPatch(BaseModel):
