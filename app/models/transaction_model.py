@@ -9,6 +9,6 @@ class Transaction(Base):
     sender_wallet_id = Column(Integer, ForeignKey("wallets.id"), nullable=True)
     recipient_wallet_id = Column(Integer, ForeignKey("wallets.id"), nullable=True)
     # тип операции: deposit, withdrawal, transfer
-    type = Column(Enum('deposit', 'withdrawal', 'transfer'), nullable=False)
+    type = Column(Enum('deposit', 'withdrawal', 'transfer', name="transaction_type_enum"), nullable=False)
     amount = Column(Float, nullable=False)
     comment = Column(String)

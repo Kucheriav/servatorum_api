@@ -62,9 +62,9 @@ class UserToken(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
 
 
-class UserCompanyRelation(Base):
-    __tablename__ = "user_company_relations"
+class UserEntityRelation(Base):
+    __tablename__ = "user_entity_relations"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-    company_id = Column(Integer, ForeignKey('legalentitys.id'))
-
+    entity_id = Column(Integer)  # id компании или фонда
+    entity_type = Column(String(50))  # "company" или "foundation"

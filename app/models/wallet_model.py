@@ -5,7 +5,7 @@ from app.database import Base
 class Wallet(Base):
     __tablename__ = "wallets"
     id = Column(Integer, primary_key=True)
-    owner_type = Column(Enum('user', 'company', 'foundation', 'fundraising'), nullable=False)
+    owner_type = Column(Enum('user', 'company', 'foundation', 'fundraising', name="wallet_owner_type_enum"), nullable=False)
     owner_id = Column(Integer, nullable=False)
     balance = Column(Float, default=0.0)
 
