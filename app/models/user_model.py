@@ -46,6 +46,22 @@ class User(Base):
             raise ValueError(f"Неверный формат номера телефона: {phone_number}. Ожидается формат: +71234567890")
         return phone_number
 
+class UserMeta(Base):
+    __tablename__ = "user_meta"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    prefer_help = Column(String)
+    achieves = Column(String)
+
+
+class UserToken(Base):
+    __tablename__ = "user_tokens"
+    id = Column(Integer, primary_key=True)
+    token = Column(String)
+    refresh_token = Column(String)
+    valid_before = Column(DateTime)
+    user_id = Column(Integer, ForeignKey('users.id'))
+
 
 class UserCompanyRelation(Base):
     __tablename__ = "user_company_relations"
@@ -53,13 +69,6 @@ class UserCompanyRelation(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     company_id = Column(Integer, ForeignKey('legalentitys.id'))
 
-
-class UserMeta(Base):
-    __tablename__ = "user_meta"
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
-    prefer_help = Column(String)
-    achieves = Column(String)
 
 
 class UserDonation(Base):
@@ -70,11 +79,3 @@ class UserDonation(Base):
     amount = Column(Float)
     date = Column(DateTime)
 
-
-class UserToken(Base):
-    __tablename__ = "user_tokens"
-    id = Column(Integer, primary_key=True)
-    token = Column(String)
-    refresh_token = Column(String)
-    valid_before = Column(DateTime)
-    user_id = Column(Integer, ForeignKey('users.id'))

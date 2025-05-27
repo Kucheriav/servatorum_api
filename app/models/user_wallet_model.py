@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, Float, DateTime, String, ForeignKey
+from sqlalchemy import Column, Integer, Float,  String, ForeignKey
 from app.database import Base
-import datetime
+
 
 class UserWalletTransaction(Base):
     __tablename__ = "user_wallet_transactions"

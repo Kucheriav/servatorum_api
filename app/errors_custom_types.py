@@ -10,13 +10,20 @@ class UserUpdateError(DatabaseError):
     pass
 
 
-class LegalEntityNotFoundError(DatabaseError):
+class CompanyNotFoundError(DatabaseError):
     pass
 
 
-class LegalEntityUpdateError(DatabaseError):
+class CompanyUpdateError(DatabaseError):
     pass
 
+
+class FoundationNotFoundError(DatabaseError):
+    pass
+
+
+class FoundationUpdateError(DatabaseError):
+    pass
 
 class FundraisingNotFoundError(DatabaseError):
     pass

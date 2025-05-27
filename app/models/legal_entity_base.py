@@ -1,11 +1,12 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum
-from sqlalchemy import func, CheckConstraint
+from sqlalchemy import Column, Integer, String
+from sqlalchemy import CheckConstraint
 from app.database import Base
 
 #TODO manage with logo
 #TODO think about unique constrictions
 
-class LegalEntity(Base):
+class LegalEntityBase(Base):
+    __abstract__ = True
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String)
     description = Column(String)
@@ -17,7 +18,6 @@ class LegalEntity(Base):
     address_reg = Column(String)
     phone = Column(String)
     phone_helpdesk = Column(String)
-    entity_type = Column(Enum('company', 'foundation', name='entity_type'))
 
     __table_args__ = (
         CheckConstraint("inn ~ '^[0-9]{10}$'", name='check_inn'),

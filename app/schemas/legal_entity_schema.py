@@ -18,7 +18,6 @@ class LegalEntityCreate(BaseModel):
     address_reg: str
     phone: str #= Field(..., description="Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{10}$")
     phone_helpdesk: str #= Field(..., description="Helpdesk Phone must follow the format '7XXXXXXXXXX'.", min_length=11, max_length=11, pattern=r"^7\d{10}$")
-    entity_type: str # Literal['company', 'foundation'] = Field(..., description="Entity type must be 'company' or 'foundation'.")
 
     @field_validator('phone', 'phone_helpdesk')
     @staticmethod
@@ -69,7 +68,7 @@ class LegalEntityResponse(BaseModel):
     address_reg: str
     phone: str
     phone_helpdesk: str
-    entity_type: str
+
 
 class LegalEntityPatch(BaseModel):
     params: Dict[str, Any]
