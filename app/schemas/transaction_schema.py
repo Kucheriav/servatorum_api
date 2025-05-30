@@ -13,27 +13,27 @@ class TransactionCreate(BaseModel):
     @staticmethod
     def type_valid(v):
         if v not in ['deposit', 'withdrawal', 'transfer']:
-            raise ValidationError("Недопустимый тип транзакции")
+            raise ValueError("Недопустимый тип транзакции")
         return v
 
     @field_validator('sender_wallet_id', 'recipient_wallet_id')
     @staticmethod
     def wallet_id_positive(v):
         if v is not None and v <= 0:
-            raise ValidationError("ID кошелька должен быть положительным")
+            raise ValueError("ID кошелька должен быть положительным")
         return v
 
     @field_validator('comment')
     @staticmethod
     def comment_length(v):
         if v is not None and len(v) > 300:
-            raise ValidationError("Комментарий не должен превышать 300 символов")
+            raise ValueError("Комментарий не должен превышать 300 символов")
         return v
 
     @model_validator(mode="after")
     def check_sender_or_recipient(self):
         if self.sender_wallet_id is None and self.recipient_wallet_id is None:
-            raise ValidationError(
+            raise ValueError(
                 "Хотя бы одно из полей sender_wallet_id или recipient_wallet_id должно быть заполнено")
         return self
 
@@ -58,7 +58,7 @@ class TransactionPatch(BaseModel):
         for key in v:
             if key == 'amount':
                 if v[key] <= 0:
-                    raise ValidationError("Сумма должна быть положительной")
+                    raise ValueError("Сумма должна быть положительной")
             if key == 'type':
                 TransactionCreate.type_valid(v[key])
             if key == 'comment':
@@ -68,6 +68,6 @@ class TransactionPatch(BaseModel):
     @model_validator(mode="after")
     def check_sender_or_recipient(self):
         if self.sender_wallet_id is None and self.recipient_wallet_id is None:
-            raise ValidationError(
+            raise ValueError(
                 "Хотя бы одно из полей sender_wallet_id или recipient_wallet_id должно быть заполнено")
         return self

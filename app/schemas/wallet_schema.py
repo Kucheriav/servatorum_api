@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Literal, Dict, Any
 import enum
 
@@ -11,7 +11,7 @@ class WalletCreate(BaseModel):
     @staticmethod
     def owner_type_valid(v):
         if v not in ['user', 'company', 'foundation']:
-            raise ValidationError("owner_type должен быть 'user', 'company' или 'foundation'")
+            raise ValueError("owner_type должен быть 'user', 'company' или 'foundation'")
         return v
 
 class WalletResponse(BaseModel):
@@ -32,7 +32,7 @@ class WalletPatch(BaseModel):
         for key in v:
             if key == 'balance':
                 if v[key] < 0:
-                    raise ValidationError("Баланс не может быть отрицательным")
+                    raise ValueError("Баланс не может быть отрицательным")
             if key == 'owner_type':
                 WalletCreate.owner_type_valid(v[key])
         return v

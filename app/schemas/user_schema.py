@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, field_validator, ValidationError
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional, Dict, Any
 import datetime
 import re
@@ -27,7 +27,7 @@ class UserCreate(BaseModel):
     def phone_format(cls, v):
         logger.info(f"Validating phone: {v}")
         if not re.match(r'^7\d{10}$', v):
-            raise ValidationError('Неправильный формат телефона')
+            raise ValueError('Неправильный формат телефона')
         return v
 
 
@@ -36,7 +36,7 @@ class UserCreate(BaseModel):
     def password_min_length(cls, v):
         logger.info(f"Validating password: {v}")
         if len(v) < 8:
-            raise ValidationError('Password must be at least 8 characters long')
+            raise ValueError('Password must be at least 8 characters long')
         return v
 
 class UserResponse(BaseModel):
@@ -70,7 +70,7 @@ class UserPatch(BaseModel):
                     # parsed_date = datetime.strptime(v[key], '%Y-%m-%d').date()
                     v[key] = temp
                 except ValueError:
-                    raise ValidationError(f"Invalid date format for key '{key}'. Expected format: YYYY-MM-DD")
+                    raise ValueError(f"Invalid date format for key '{key}'. Expected format: YYYY-MM-DD")
             elif key == 'balance':
-                raise ValidationError(f"Can't patch balance")
+                raise ValueError(f"Can't patch balance")
         return v

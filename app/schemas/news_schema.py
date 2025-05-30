@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, ValidationError
+from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 
@@ -16,14 +16,14 @@ class NewsCreate(BaseModel):
     @staticmethod
     def title_len(v):
         if not(0 < v < 256):
-            raise ValidationError('Incorrect field length. Must be [1 .. 255]')
+            raise ValueError('Incorrect field length. Must be [1 .. 255]')
         return v
 
     @field_validator('description')
     @staticmethod
     def description_len(v):
         if not(0 < v < 1001):
-            raise ValidationError('Incorrect field length. Must be [1 .. 1000]')
+            raise ValueError('Incorrect field length. Must be [1 .. 1000]')
         return v
 
 class NewsResponse(BaseModel):
