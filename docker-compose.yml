@@ -13,6 +13,8 @@ services:
       - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./my_postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./pg_wal_archive:/var/lib/postgresql/data/wal_archive
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
     ports:
