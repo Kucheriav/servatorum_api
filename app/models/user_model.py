@@ -21,7 +21,6 @@ class User(Base):
     address = Column(String)
     email = Column(String, nullable=False, unique=True)
     phone = Column(String, nullable=False)
-    balance = Column(Float, default=0.0)
     profile_picture = Column(String)
 
     # fundraisings = relationship("Fundraising", back_populates="owner")

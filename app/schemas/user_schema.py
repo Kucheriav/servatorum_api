@@ -27,7 +27,7 @@ class UserCreate(BaseModel):
     def phone_format(cls, v):
         logger.info(f"Validating phone: {v}")
         if not re.match(r'^7\d{10}$', v):
-            raise ValueError('Неправильный формат телефона')
+            raise ValueError('Phone number must be "71234567890" like')
         return v
 
 
