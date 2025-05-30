@@ -16,7 +16,7 @@ async def create_wallet(wallet: WalletCreate):
         result = await wallet_crud.create_wallet(wallet=wallet)
         logger.info("Кошелек успешно создан")
         return result
-    except ValidationError as e:
+    except ValueError as e:
         logger.error("Ошибка валидации при создании кошелька", exc_info=True)
         errors = e.errors()
         error_messages = []

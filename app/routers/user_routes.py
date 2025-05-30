@@ -42,7 +42,7 @@ async def get_user(user_id: int):
         user = await user_crud.get_user(user_id=user_id)
         logger.info(f"User with ID {user_id} retrieved successfully")
         return user
-    except UserNotFoundError:
+    except NotFoundError:
         logger.warning(f"User with ID {user_id} not found")
         raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
@@ -57,7 +57,7 @@ async def patch_user(user_id: int, user_params_to_patch: UserPatch):
         patched_user = await user_crud.patch_user(user_id=user_id, params=user_params_to_patch)
         logger.info(f"User with ID {user_id} patched successfully")
         return patched_user
-    except UserNotFoundError:
+    except NotFoundError:
         logger.warning(f"User with ID {user_id} not found")
         raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:
@@ -72,7 +72,7 @@ async def delete_user(user_id: int):
         await user_crud.delete_user(user_id=user_id)
         logger.info(f"User with ID {user_id} deleted successfully")
         return {"message": "User deleted"}
-    except UserNotFoundError:
+    except NotFoundError:
         logger.warning(f"User with ID {user_id} not found")
         raise HTTPException(status_code=404, detail="User not found")
     except Exception as e:

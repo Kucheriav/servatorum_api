@@ -30,7 +30,7 @@ async def get_foundation(foundation_id: int):
     try:
         foundation = await foundation_crud.get_foundation(foundation_id=foundation_id)
         return foundation
-    except FoundationNotFoundError as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -43,7 +43,7 @@ async def patch_foundation(foundation_id: int, foundation_params_to_patch: Found
         patched_foundation = await foundation_crud.patch_foundation(foundation_id=foundation_id,
                                                                       params=foundation_params_to_patch)
         return patched_foundation
-    except FoundationNotFoundError as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except IntegrityError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -57,7 +57,7 @@ async def delete_foundation(foundation_id: int):
     try:
         await foundation_crud.delete_foundation(foundation_id=foundation_id)
         return {"message": "Foundation deleted"}
-    except FoundationNotFoundError as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

@@ -30,7 +30,7 @@ async def get_company(company_id: int):
     try:
         company = await company_crud.get_company(company_id=company_id)
         return company
-    except CompanyNotFoundError as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -43,7 +43,7 @@ async def patch_company(company_id: int, company_params_to_patch: CompanyPatch):
         patched_company = await company_crud.patch_company(company_id=company_id,
                                                                       params=company_params_to_patch)
         return patched_company
-    except CompanyNotFoundError as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except IntegrityError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -57,7 +57,7 @@ async def delete_company(company_id: int):
     try:
         await company_crud.delete_company(company_id=company_id)
         return {"message": "Company deleted"}
-    except CompanyNotFoundError as e:
+    except NotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
