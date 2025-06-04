@@ -1,0 +1,75 @@
+services:
+  db:
+    image: postgres:15
+    container_name: servatorum_db
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres-conf/my_postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./docker/postgres-conf/pg_wal_archive:/var/lib/postgresql/data/wal_archive
+      - ./docker/postgres-conf/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
+    ports:
+      - "5432:5432"
+    networks:
+      - app_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db_replica:
+    image: postgres:15
+    container_name: servatorum_replica
+    environment:
+      POSTGRES_USER: ${REPLICATOR_USER}
+      POSTGRES_PASSWORD: ${REPLICATOR_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - postgres_replica_data:/var/lib/postgresql/data
+      - ./docker/postgres-conf/my_postgresql.conf:/var/lib/postgresql/data/postgresql.conf
+      - ./docker/postgres-conf/pg_wal_archive:/var/lib/postgresql/data/wal_archive
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
+    ports:
+      - "5433:5432"    # Открываем порт 5433 на хосте, чтобы не конфликтовать с основной базой
+    networks:
+      - app_network
+    depends_on:
+      - db
+
+  api:
+    build: .
+    image: servatorum_api
+    container_name: servatorum_api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      #- /etc/localtime:/etc/localtime:ro
+      #- /etc/timezone:/etc/timezone:ro
+    networks:
+      - app_network
+    depends_on:
+      - db
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  postgres_replica_data:

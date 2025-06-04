@@ -1,13 +1,16 @@
+# Load environment variables
+import os
+from dotenv import load_dotenv
+
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "app\.env")
+print(dotenv_path)
+load_dotenv(dotenv_path)
+
 from logging.config import fileConfig
 from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
 from app.models import Base  # Your models should be imported here
 from urllib.parse import quote_plus
-import os
-
-# Load environment variables
-from dotenv import load_dotenv
-load_dotenv()
 
 # This is the Alembic Config object, which provides access to the values within the .ini file in use.
 config = context.config
