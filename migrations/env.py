@@ -2,7 +2,7 @@
 import os
 from dotenv import load_dotenv
 
-dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "app\.env")
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "app/.env")
 print(dotenv_path)
 load_dotenv(dotenv_path)
 
@@ -52,18 +52,20 @@ def run_migrations_offline() -> None:
 
 
 async def run_migrations_online():
-    """Run migrations in 'online' mode."""
     connectable = create_async_engine(config.get_main_option("sqlalchemy.url"))
 
     async with connectable.connect() as connection:
-        await connection.run_sync(
-            context.configure,
-            connection=connection,
-            target_metadata=target_metadata,
-            compare_type=True,
-            render_as_batch=True
-        )
-        await connection.run_sync(context.run_migrations)
+        def do_run_migrations(connection):
+            context.configure(
+                connection=connection,
+                target_metadata=target_metadata,
+                compare_type=True,
+                render_as_batch=True,
+            )
+            with context.begin_transaction():
+                context.run_migrations()
+
+        await connection.run_sync(do_run_migrations)
 
 
 if context.is_offline_mode():

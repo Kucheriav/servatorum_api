@@ -1,3 +1,4 @@
+from .admin_model import *
 from .company_model import *
 from .foundation_model import *
 from .fundraising_model import *
