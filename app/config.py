@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
     PASSWORD_SALT: str
+    REPLICATOR_USER: str
+    REPLICATOR_PASSWORD: str
 
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")

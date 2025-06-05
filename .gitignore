@@ -7,3 +7,4 @@ __pycache__/
 .env
 *.log
 *.ini
+docker-compose.override.yml

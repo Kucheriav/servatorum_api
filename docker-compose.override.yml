@@ -11,11 +11,13 @@ services:
       - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres-conf/my_postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-      - ./docker/postgres-conf/pg_wal_archive:/var/lib/postgresql/data/wal_archive
-      - ./docker/postgres-conf/pg_hba.conf:/var/lib/postgresql/data/pg_hba.conf
-      #- /etc/localtime:/etc/localtime:ro
-      #- /etc/timezone:/etc/timezone:ro
+      # Кастомные конфиги монтируются вне папки данных
+      - ./docker/postgres-conf/my_postgresql.conf:/etc/postgresql/my_postgresql.conf:ro
+      - ./docker/postgres-conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      # WAL архив в отдельный volume или папку вне data (пример ниже)
+      - pg_wal_archive:/var/lib/postgresql/wal_archive
+      # - ./docker/postgres-conf/pg_wal_archive:/var/lib/postgresql/wal_archive
+    command: postgres -c config_file=/etc/postgresql/my_postgresql.conf
     ports:
       - "5432:5432"
     networks:
@@ -38,12 +40,12 @@ services:
       - .env
     volumes:
       - postgres_replica_data:/var/lib/postgresql/data
-      - ./docker/postgres-conf/my_postgresql.conf:/var/lib/postgresql/data/postgresql.conf
-      - ./docker/postgres-conf/pg_wal_archive:/var/lib/postgresql/data/wal_archive
-      #- /etc/localtime:/etc/localtime:ro
-      #- /etc/timezone:/etc/timezone:ro
+      - ./docker/postgres-conf/my_postgresql.conf:/etc/postgresql/my_postgresql.conf:ro
+      - ./docker/postgres-conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
+      - pg_wal_archive:/var/lib/postgresql/wal_archive
+    command: postgres -c config_file=/etc/postgresql/my_postgresql.conf
     ports:
-      - "5433:5432"    # Открываем порт 5433 на хосте, чтобы не конфликтовать с основной базой
+      - "5433:5432"
     networks:
       - app_network
     depends_on:
@@ -60,12 +62,11 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
-      #- /etc/localtime:/etc/localtime:ro
-      #- /etc/timezone:/etc/timezone:ro
     networks:
       - app_network
     depends_on:
       - db
+
 networks:
   app_network:
     driver: bridge
@@ -73,3 +74,4 @@ networks:
 volumes:
   postgres_data:
   postgres_replica_data:
+  pg_wal_archive:
