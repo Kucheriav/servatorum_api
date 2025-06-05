@@ -8,12 +8,12 @@ from app.routers import (user_routes, company_routes, foundation_routes, fundrai
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-    except Exception as e:
-        print(f'DB error: {e}')
-        raise
+    # try:
+    #     async with engine.begin() as conn:
+    #         await conn.run_sync(Base.metadata.create_all)
+    # except Exception as e:
+    #     print(f'DB error: {e}')
+    #     raise
     yield
     await engine.dispose()
 

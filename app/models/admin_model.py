@@ -7,3 +7,4 @@ class Admin(Base):
     username = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
+    profile_picture = Column(String)
