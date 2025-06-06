@@ -9,6 +9,37 @@ logger = logging.getLogger("app.user_crud")
 
 class UserCRUD:
     @connection
+    async def get_user_by_phone(self, phone: str, session):
+        stmt = session.select(User).where(User.phone == phone)
+        result = await session.execute(stmt)
+        return result.scalars().first()
+
+    @connection
+    async def create_user_step1(self, phone, name, profile_picture, session):
+        # создать user с минимальными полями
+        user = User(login=phone, phone=phone, first_name=name, profile_picture=profile_picture)
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        return user
+
+    @connection
+    async def update_user_step2(self, phone, other_fields, session):
+        user = await self.get_user_by_phone(phone, session)
+        for key, value in other_fields.items():
+            setattr(user, key, value)
+        await session.commit()
+        await session.refresh(user)
+        return user
+
+    @connection
+    async def create_user_minimal(self, phone, session):
+        user = User(login=phone, phone=phone)
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        return user
+    @connection
     async def create_user(self, user: UserCreate, session):
         logger.info("Creating a new user")
         try:

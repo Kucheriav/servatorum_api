@@ -1,11 +1,11 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Float
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Boolean
 from sqlalchemy.orm import validates
 from app.database import Base
 from app.config import settings
 import re
 import hashlib
 import binascii
-
+import datetime
 
 class User(Base):
     __tablename__ = "users"
@@ -67,3 +67,12 @@ class UserEntityRelation(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     entity_id = Column(Integer)  # id компании или фонда
     entity_type = Column(String(50))  # "company" или "foundation"
+
+
+class VerificationCode(Base):
+    __tablename__ = "verification_codes"
+    id = Column(Integer, primary_key=True, index=True)
+    phone = Column(String, index=True, nullable=False)
+    code = Column(String, nullable=False)
+    is_used = Column(Boolean, default=False)
+    attempts = Column(Integer, default=0)
