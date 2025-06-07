@@ -84,6 +84,20 @@ class UserCRUD:
         return user_token
 
     @connection
+    async def refresh_access_token(self, refresh_token: str, session):
+        # Ищем refresh_token в таблице
+        token_obj = await session.execute(
+            UserToken.__table__.select().where(UserToken.refresh_token == refresh_token)
+        )
+        token_obj = token_obj.first()
+        if not token_obj or token_obj[0].valid_before < datetime.now():
+            return None
+        user_id = token_obj[0].user_id
+        # Генерируем новый access_token
+        new_access = generate_access_token(user_id)
+        return new_access
+
+    @connection
     async def create_user(self, user: UserCreate, session):
         logger.info("Creating a new user")
         try:
