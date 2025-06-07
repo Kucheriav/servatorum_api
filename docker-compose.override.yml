@@ -17,7 +17,7 @@ services:
       # WAL архив в отдельный volume или папку вне data (пример ниже)
       - pg_wal_archive:/var/lib/postgresql/wal_archive
       # - ./docker/postgres-conf/pg_wal_archive:/var/lib/postgresql/wal_archive
-    command: postgres -c config_file=/etc/postgresql/my_postgresql.conf
+    command:  bash -c "chown -R postgres:postgres /var/lib/postgresql/wal_archive && exec postgres -c config_file=/etc/postgresql/my_postgresql.conf"
     ports:
       - "5432:5432"
     networks:
