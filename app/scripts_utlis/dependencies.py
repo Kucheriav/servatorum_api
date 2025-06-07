@@ -1,6 +1,6 @@
 from fastapi import Request, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
-from app.utils.jwt_utils import decode_access_token
+from app.scripts_utlis.jwt_utils import *
 from app.crud.user_crud import UserCRUD
 import jwt
 
