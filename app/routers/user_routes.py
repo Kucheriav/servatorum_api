@@ -6,6 +6,8 @@ from app.crud.user_crud import UserCRUD
 from app.schemas.user_schema import *
 import logging
 
+from app.scripts_utlis.jwt_utils import generate_access_token
+
 router = APIRouter()
 user_crud = UserCRUD()
 
@@ -24,17 +26,15 @@ async def request_code(data: RequestCodeSchema):
         logger.error("Ошибка при создании кода", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@router.post("/verify_code", response_model=AuthTokenResponse)
+@router.post("/verify_code")
 async def verify_code(data: VerifyCodeSchema):
     try:
-        status = await user_crud.verify_code(phone=data.phone, code=data.code)
-        if status == "ok":
-            user = await user_crud.get_or_create_user(phone=data.phone)
-            token = user_crud.generate_token(user)
-            return {"access_token": token, "token_type": "bearer"}
-        elif status == "expired":
+        result = await user_crud.verify_code(phone=data.phone, code=data.code)
+        if result['status'] == "ok":
+            return result
+        elif result['status'] == "expired":
             raise HTTPException(status_code=400, detail="Код истек")
-        elif status == "locked":
+        elif result['status'] == "locked":
             raise HTTPException(status_code=400, detail="Превышено количество попыток. Запросите новый код.")
         else:
             raise HTTPException(status_code=400, detail="Неверный код")
@@ -111,3 +111,10 @@ async def delete_user(user_id: int):
         logger.error("Unexpected error while patching user", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+@router.post("/token/refresh")
+async def refresh_token(refresh_token_in: str):
+    token_obj = await user_crud.get_refresh_token(refresh_token_in)
+    if not token_obj or token_obj.valid_before < datetime.utcnow():
+        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
+    access_token = generate_access_token(token_obj.user_id)
+    return {"access_token": access_token}

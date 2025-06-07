@@ -3,19 +3,17 @@ from app.database import connection
 from app.models.user_model import *
 from app.schemas.user_schema import UserCreate
 from app.errors_custom_types import *
+from app.scripts_utlis.token_utils import *
+from app.scripts_utlis.jwt_utils import *
 from datetime import datetime, timedelta
 import random
 import logging
+import jwt
 
 logger = logging.getLogger("app.user_crud")
 CODE_TTL_MINUTES = 5
 MAX_ATTEMPTS = 5
 
-
-def generate_token(user: User):
-    payload = {"user_id": user.id, "phone": user.phone}
-    token = jwt.encode(payload, settings.get_salt(), algorithm="HS256")
-    return token
 
 
 class UserCRUD:
@@ -63,8 +61,9 @@ class UserCRUD:
         await session.commit()
         user = await self.get_user_by_phone(phone)
         if user:
-            token = generate_token(user=user)
-            return {'status': 'ok', 'is_new': False, 'user': user, 'token': token}
+            access_token = generate_access_token(user.id)
+            refresh_token_obj = await self.create_refresh_token(user.id)
+            return {'status': 'ok', 'is_new': False,'user': user, 'access_token': access_token, 'refresh_token': refresh_token_obj.refresh_token}
         else:
             return {'status': 'ok', 'is_new': True}
 
@@ -74,7 +73,15 @@ class UserCRUD:
         result = await session.execute(stmt)
         return result.scalars().first()
 
-
+    @connection
+    async def create_refresh_token(self, user_id: int, session):
+        refresh_token = generate_refresh_token()
+        valid_before = get_refresh_token_expiry()
+        user_token = UserToken(token=None, refresh_token=refresh_token, valid_before=valid_before, user_id=user_id)
+        session.add(user_token)
+        await session.commit()
+        await session.refresh(user_token)
+        return user_token
 
     @connection
     async def create_user(self, user: UserCreate, session):
@@ -86,8 +93,9 @@ class UserCRUD:
             await session.commit()
             await session.refresh(new_user)  # Refresh to get the generated ID
             logger.info(f"User created successfully with ID: {new_user.id}")
-            token = generate_token(user=new_user)
-            return {'user': new_user, 'token':token}
+            access_token = generate_access_token(user.id)
+            refresh_token_obj = await self.create_refresh_token(user.id)
+            return {'user': new_user, 'access_token': access_token, 'refresh_token': refresh_token_obj.refresh_token}
         except Exception as e:
             logger.error("Error occurred while creating user", exc_info=True)
             raise
