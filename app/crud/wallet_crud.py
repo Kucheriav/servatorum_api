@@ -12,7 +12,7 @@ class WalletCRUD:
     async def create_wallet(self, wallet: WalletCreate, session):
         logger.info(f"Creating wallet for {wallet.owner_type} with id={wallet.owner_id}")
         try:
-            new_wallet = Wallet(**wallet.dict())
+            new_wallet = Wallet(**wallet.model_dump())
             session.add(new_wallet)
             await session.flush()
             await session.refresh(new_wallet)

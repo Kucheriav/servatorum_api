@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, model_validator
 from typing import Optional, Dict, Any
 import datetime
 import re
@@ -7,8 +7,35 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class RequestCodeSchema(BaseModel):
+    phone: str
+
+    @field_validator("phone")
+    @classmethod
+    def phone_format(cls, v):
+        # Ожидаем 7XXXXXXXXXX или +7XXXXXXXXXX
+        if not re.match(r"^7\d{10}$", v) and not re.match(r"^\+7\d{10}$", v):
+            raise ValueError("Номер должен быть в формате 7XXXXXXXXXX или +7XXXXXXXXXX")
+        return v.lstrip("+")
+
+class VerifyCodeSchema(BaseModel):
+    phone: str
+    code: str
+
+    @field_validator("phone")
+    @classmethod
+    def phone_format(cls, v):
+        if not re.match(r"^7\d{10}$", v) and not re.match(r"^\+7\d{10}$", v):
+            raise ValueError("Номер должен быть в формате 7XXXXXXXXXX или +7XXXXXXXXXX")
+        return v.lstrip("+")
+
+class AuthTokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+
 class UserCreate(BaseModel):
-    login: str
+    # login: str
     password: str
     first_name: Optional[str] = None
     surname: Optional[str] = None
@@ -17,8 +44,8 @@ class UserCreate(BaseModel):
     gender: Optional[str] = None
     city: Optional[str] = None
     address: Optional[str] = None
-    email: EmailStr
-    phone: str
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
     profile_picture: Optional[str] = None
 
 
@@ -38,6 +65,12 @@ class UserCreate(BaseModel):
         if len(v) < 8:
             raise ValueError('Password must be at least 8 characters long')
         return v
+
+    @model_validator(mode='after')
+    def check_email_or_phone(self):
+        if not self.phone and not self.email:
+            raise ValueError("Необходимо задать хотя бы одно из полей: email или phone.")
+        return self
 
 class UserResponse(BaseModel):
     id: int

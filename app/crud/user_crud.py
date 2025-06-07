@@ -1,68 +1,93 @@
-import logging
+from sqlalchemy.future import select
 from app.database import connection
-from app.models.user_model import User
+from app.models.user_model import *
 from app.schemas.user_schema import UserCreate
 from app.errors_custom_types import *
+from datetime import datetime, timedelta
+import random
+import logging
 
 logger = logging.getLogger("app.user_crud")
+CODE_TTL_MINUTES = 5
+MAX_ATTEMPTS = 5
+
+
+def generate_token(user: User):
+    payload = {"user_id": user.id, "phone": user.phone}
+    token = jwt.encode(payload, settings.get_salt(), algorithm="HS256")
+    return token
 
 
 class UserCRUD:
+    @connection
+    async def create_verification_code(self, phone: str, session):
+        # Сбросить старые коды для этого телефона
+        await session.execute(
+            VerificationCode.__table__.update()
+            .where(
+                VerificationCode.phone == phone,
+                VerificationCode.is_used == False
+            )
+            .values(is_used=True)
+        )
+        code = f"{random.randint(1000, 9999)}"
+        verif_code = VerificationCode(phone=phone, code=code)
+        session.add(verif_code)
+        await session.commit()
+        await session.refresh(verif_code)
+        return code
+
+    @connection
+    async def verify_code(self, phone: str, code: str, session):
+        # also check if user exist
+        now = datetime.now()
+        stmt = select(VerificationCode).where(
+            VerificationCode.phone == phone,
+            VerificationCode.is_used is False,
+            VerificationCode.created_at >= now - timedelta(minutes=CODE_TTL_MINUTES)
+        ).order_by(VerificationCode.created_at.desc())
+        result = await session.execute(stmt)
+        code_obj = result.scalars().first()
+        if not code_obj:
+            return {'status': 'expired'}
+        if code_obj.attempts >= MAX_ATTEMPTS:
+            code_obj.is_used = True
+            await session.commit()
+            return {'status': 'locked'}
+        if code_obj.code != code:
+            code_obj.attempts += 1
+            await session.commit()
+            return {'status': 'invalid'}
+        # OK
+        code_obj.is_used = True
+        await session.commit()
+        user = await self.get_user_by_phone(phone)
+        if user:
+            token = generate_token(user=user)
+            return {'status': 'ok', 'is_new': False, 'user': user, 'token': token}
+        else:
+            return {'status': 'ok', 'is_new': True}
+
     @connection
     async def get_user_by_phone(self, phone: str, session):
         stmt = session.select(User).where(User.phone == phone)
         result = await session.execute(stmt)
         return result.scalars().first()
 
-    @connection
-    async def create_user_step1(self, phone, name, profile_picture, session):
-        # создать user с минимальными полями
-        user = User(login=phone, phone=phone, first_name=name, profile_picture=profile_picture)
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        return user
 
-    @connection
-    async def update_user_step2(self, phone, other_fields, session):
-        user = await self.get_user_by_phone(phone, session)
-        for key, value in other_fields.items():
-            setattr(user, key, value)
-        await session.commit()
-        await session.refresh(user)
-        return user
 
-    @connection
-    async def create_user_minimal(self, phone, session):
-        user = User(login=phone, phone=phone)
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
-        return user
     @connection
     async def create_user(self, user: UserCreate, session):
         logger.info("Creating a new user")
         try:
-            new_user = User(
-                login=user.login,
-                first_name=user.first_name,
-                surname=user.surname,
-                last_name=user.last_name,
-                date_of_birth=user.date_of_birth,
-                gender=user.gender,
-                city=user.city,
-                address=user.address,
-                email=user.email,
-                phone=user.phone,
-                profile_picture=None
-            )
+            new_user = User(**user.model_dump())
             new_user.set_password(user.password)
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)  # Refresh to get the generated ID
             logger.info(f"User created successfully with ID: {new_user.id}")
-            return new_user
-
+            token = generate_token(user=new_user)
+            return {'user': new_user, 'token':token}
         except Exception as e:
             logger.error("Error occurred while creating user", exc_info=True)
             raise

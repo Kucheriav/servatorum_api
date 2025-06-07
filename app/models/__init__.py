@@ -3,6 +3,7 @@ from .company_model import *
 from .foundation_model import *
 from .fundraising_model import *
 from .news_model import *
+from .sphere_model import *
 from .transaction_model import *
 from .user_model import *
 from .wallet_model import *

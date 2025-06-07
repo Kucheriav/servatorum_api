@@ -27,7 +27,7 @@ class TransactionCRUD:
                 logger.warning(f"Recipient wallet id={tx.recipient_wallet_id} not found")
                 raise NotFoundError("Кошелек получателя не найден")
         # (Далее обработка списания/зачисления баланса по логике)
-        new_tx = Transaction(**tx.dict())
+        new_tx = Transaction(**tx.model_dump())
         session.add(new_tx)
         await session.flush()
         await session.refresh(new_tx)

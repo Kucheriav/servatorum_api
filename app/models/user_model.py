@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Boolean
-from sqlalchemy.orm import validates
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Boolean, Enum
+from sqlalchemy.orm import validates, relationship
+from app.models.sphere_model import user_spheres
 from app.database import Base
 from app.config import settings
 import re
@@ -10,7 +11,8 @@ import datetime
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    login = Column(String, nullable=False)
+    # логина как такового нет
+    # login = Column(String, nullable=False)
     _password = Column(String, nullable=False)
     first_name = Column(String)
     surname = Column(String)
@@ -19,11 +21,17 @@ class User(Base):
     gender = Column(String)
     city = Column(String)
     address = Column(String)
-    email = Column(String, nullable=False, unique=True)
-    phone = Column(String, nullable=False)
+    email = Column(String, unique=True)
+    phone = Column(String)
     profile_picture = Column(String)
+    role = Column(Enum('helping', 'getting help', name="user_role_enum"), nullable=False)
+    spheres = relationship("Sphere", secondary=user_spheres, backref="users")
 
-    # fundraisings = relationship("Fundraising", back_populates="owner")
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # Проверяем наличие либо email, либо пароля
+        if not any([self.email, self.phone]):
+            raise ValueError("Необходимо передать хотя бы email или номер телефона.")
 
     @property
     def password(self):
