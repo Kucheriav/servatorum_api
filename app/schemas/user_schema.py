@@ -29,6 +29,10 @@ class VerifyCodeSchema(BaseModel):
             raise ValueError("Номер должен быть в формате 7XXXXXXXXXX или +7XXXXXXXXXX")
         return v.lstrip("+")
 
+class NewUserResponse(BaseModel):
+    status: str
+    is_new: bool
+
 class UserCreate(BaseModel):
     # login: str
     password: str
@@ -43,7 +47,7 @@ class UserCreate(BaseModel):
     phone: Optional[str] = None
     profile_picture: Optional[str] = None
     role: Literal['helping', 'getting help'] = Field(..., description="Что пользователь хочет")
-    spheres: Optional[List[int]]
+    spheres: Optional[List[int]] = None
 
 
     @field_validator('phone')
@@ -82,6 +86,12 @@ class UserResponse(BaseModel):
     role: str
     spheres: Optional[List[int]]
 
+class AuthResponse(BaseModel):
+    user: Optional[UserResponse] = None
+    access_token: Optional[str] = None
+    refresh_token: Optional[str] = None
+    status: str = "ok"
+    is_new: bool = False
 
 class UserPatch(BaseModel):
     params: Dict[str, Any]

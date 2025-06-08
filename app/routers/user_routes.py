@@ -1,3 +1,5 @@
+from typing import Union
+
 from fastapi import APIRouter, HTTPException
 from app.errors_custom_types import *
 from pydantic import ValidationError
@@ -26,7 +28,7 @@ async def request_code(data: RequestCodeSchema):
         logger.error("Ошибка при создании кода", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-@router.post("/verify_code")
+@router.post("/verify_code", response_model=AuthResponse)
 async def verify_code(data: VerifyCodeSchema):
     try:
         result = await user_crud.verify_code(phone=data.phone, code=data.code)
@@ -42,7 +44,7 @@ async def verify_code(data: VerifyCodeSchema):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 
-@router.post("/create_user", response_model=UserResponse)
+@router.post("/create_user", response_model=AuthResponse)
 async def create_user(user: UserCreate):
     logger.info("Request received to create a user")
     try:

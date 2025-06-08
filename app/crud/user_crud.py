@@ -1,8 +1,10 @@
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
+
 from app.database import connection
 from app.models.user_model import *
 from app.models.sphere_model import *
-from app.schemas.user_schema import UserCreate
+from app.schemas.user_schema import UserCreate, UserResponse
 from app.errors_custom_types import *
 from app.scripts_utlis.token_utils import *
 from app.scripts_utlis.jwt_utils import *
@@ -16,6 +18,20 @@ CODE_TTL_MINUTES = 5
 MAX_ATTEMPTS = 5
 
 
+def user_to_schema(user: User) -> UserResponse:
+    return UserResponse(
+        id=user.id,
+        first_name=user.first_name,
+        surname=user.surname,
+        last_name=user.last_name,
+        date_of_birth=user.date_of_birth,
+        gender=user.gender,
+        city=user.city,
+        email=user.email,
+        phone=user.phone,
+        role=user.role,
+        spheres=[s.id for s in user.spheres] if user.spheres else []
+    )
 
 class UserCRUD:
     @connection
@@ -38,7 +54,7 @@ class UserCRUD:
 
     @connection
     async def verify_code(self, phone: str, code: str, session):
-        # also check if user exist
+        # dont work idkn why
         # now = datetime.now()
         # stmt = select(VerificationCode).where(
         #     VerificationCode.phone == phone,
@@ -54,13 +70,13 @@ class UserCRUD:
         ).order_by(VerificationCode.created_at.desc())
         result = await session.execute(codes_query)
         codes = result.scalars().all()
-
-        logger.info(f"Найдено {len(codes)} неиспользованных кодов для телефона {phone} на {now}")
-        for idx, c in enumerate(codes):
-            logger.info(
-                f"[{idx}] code={c.code}, created_at={c.created_at}, attempts={c.attempts} "
-                f"is_used={c.is_used}, сравниваем с порогом: {now - timedelta(minutes=CODE_TTL_MINUTES)}"
-            )
+        # logging this!
+        # logger.info(f"Найдено {len(codes)} неиспользованных кодов для телефона {phone} на {now}")
+        # for idx, c in enumerate(codes):
+        #     logger.info(
+        #         f"[{idx}] code={c.code}, created_at={c.created_at}, attempts={c.attempts} "
+        #         f"is_used={c.is_used}, сравниваем с порогом: {now - timedelta(minutes=CODE_TTL_MINUTES)}"
+        #     )
         code_obj = None
         for c in codes:
             if c.created_at >= now - timedelta(minutes=CODE_TTL_MINUTES):
@@ -83,7 +99,12 @@ class UserCRUD:
         if user:
             access_token = generate_access_token(user.id)
             refresh_token_obj = await self.create_refresh_token(user.id)
-            return {'status': 'ok', 'is_new': False,'user': user, 'access_token': access_token, 'refresh_token': refresh_token_obj.refresh_token}
+            result = await session.execute(
+                select(User).options(selectinload(User.spheres)).where(User.id == user.id)
+            )
+            user_with_spheres = result.scalars().first()
+            user_schema = user_to_schema(user_with_spheres)
+            return {'status': 'ok', 'is_new': False,'user': user_schema, 'access_token': access_token, 'refresh_token': refresh_token_obj.refresh_token}
         else:
             return {'status': 'ok', 'is_new': True}
 
@@ -156,9 +177,15 @@ class UserCRUD:
             await session.commit()
             await session.refresh(new_user)  # Refresh to get the generated ID
             logger.info(f"User created successfully with ID: {new_user.id}")
-            access_token = generate_access_token(user.id)
-            refresh_token_obj = await self.create_refresh_token(user.id)
-            return {'user': new_user, 'access_token': access_token, 'refresh_token': refresh_token_obj.refresh_token}
+            access_token = generate_access_token(new_user.id)
+            refresh_token_obj = await self.create_refresh_token(new_user.id)
+            result = await session.execute(
+                select(User).options(selectinload(User.spheres)).where(User.id == new_user.id)
+            )
+            user_with_spheres = result.scalars().first()
+
+            user_schema = user_to_schema(user_with_spheres)
+            return {'user': user_schema, 'access_token': access_token, 'refresh_token': refresh_token_obj.refresh_token}
         except Exception as e:
             logger.error("Error occurred while creating user", exc_info=True)
             raise
