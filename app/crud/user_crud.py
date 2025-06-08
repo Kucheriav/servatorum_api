@@ -89,7 +89,7 @@ class UserCRUD:
 
     @connection
     async def get_user_by_phone(self, phone: str, session):
-        stmt = session.select(User).where(User.phone == phone)
+        stmt = select(User).where(User.phone == phone)
         result = await session.execute(stmt)
         return result.scalars().first()
 
