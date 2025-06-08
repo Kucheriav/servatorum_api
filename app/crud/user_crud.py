@@ -102,6 +102,19 @@ class UserCRUD:
     async def create_user(self, user: UserCreate, session):
         logger.info("Creating a new user")
         try:
+            verif_code = await session.execute(
+                select(VerificationCode)
+                .where(
+                    VerificationCode.phone == user.phone,
+                    VerificationCode.is_used == True,  # был использован (подтверждён)
+                    VerificationCode.created_at >= datetime.now() - timedelta(minutes=CODE_TTL_MINUTES)
+                )
+                .order_by(VerificationCode.created_at.desc())
+            )
+            verif_code = verif_code.scalars().first()
+            if not verif_code:
+                raise RegistrationError("Телефон не подтверждён или истёк код верификации.")
+
             spheres = await session.execute(select(Sphere).where(Sphere.id.in_(user.spheres)))
             sphere_objects = spheres.scalars().all()
             new_user = User(
@@ -116,7 +129,7 @@ class UserCRUD:
                 phone=user.phone,
                 profile_picture=None,
                 role=user.role,
-                spheres=user.spheres
+                spheres=sphere_objects
             )
             new_user.set_password(user.password)
             new_user.set_password(user.password)

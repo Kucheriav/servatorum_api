@@ -26,3 +26,6 @@ class ConstrictionViolatedError(DatabaseError):
 
 class InsufficientFundsError(DatabaseError):
     pass
+
+class RegistrationError(Exception):
+    pass

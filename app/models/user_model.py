@@ -22,7 +22,7 @@ class User(Base):
     city = Column(String)
     address = Column(String)
     email = Column(String, unique=True)
-    phone = Column(String)
+    phone = Column(String, unique=True)
     profile_picture = Column(String)
     role = Column(Enum('helping', 'getting help', name="user_role_enum"), nullable=False)
     spheres = relationship("Sphere", secondary=user_spheres, back_populates="users")
