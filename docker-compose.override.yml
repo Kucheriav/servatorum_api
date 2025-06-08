@@ -3,6 +3,8 @@ services:
     image: postgres:15
     command: chown -R 999:999 /var/lib/postgresql/wal_archive
     user: root
+    networks:
+      - app_network
     volumes:
       - pg_wal_archive:/var/lib/postgresql/wal_archive
 
@@ -22,6 +24,8 @@ services:
       - ./docker/postgres-conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
       - pg_wal_archive:/var/lib/postgresql/wal_archive
     command: postgres -c config_file=/etc/postgresql/my_postgresql.conf
+    networks:
+      - app_network
     depends_on:
       - wal_archive_init
     healthcheck:
@@ -46,6 +50,8 @@ services:
       - ./docker/postgres-conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
       - pg_wal_archive:/var/lib/postgresql/wal_archive
     command: postgres -c config_file=/etc/postgresql/my_postgresql.conf
+    networks:
+      - app_network
     depends_on:
       - db
       - wal_archive_init
