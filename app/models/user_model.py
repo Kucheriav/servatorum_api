@@ -25,7 +25,7 @@ class User(Base):
     phone = Column(String)
     profile_picture = Column(String)
     role = Column(Enum('helping', 'getting help', name="user_role_enum"), nullable=False)
-    spheres = relationship("Sphere", secondary=user_spheres, backref="users")
+    spheres = relationship("Sphere", secondary=user_spheres, back_populates="users")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

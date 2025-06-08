@@ -4,4 +4,4 @@ from app.models.sphere_model import company_spheres
 
 class Company(LegalEntityBase):
     __tablename__ = "companies"
-    spheres = relationship("Sphere", secondary=company_spheres, backref="companies")
+    spheres = relationship("Sphere", secondary=company_spheres, back_populates="companies")
