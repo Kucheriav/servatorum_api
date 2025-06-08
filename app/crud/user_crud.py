@@ -48,15 +48,16 @@ class UserCRUD:
         result = await session.execute(stmt)
         code_obj = result.scalars().first()
         if not code_obj:
-            return {'status': 'expired'}
+
+            raise CodeExpired
         if code_obj.attempts >= MAX_ATTEMPTS:
             code_obj.is_used = True
             await session.commit()
-            return {'status': 'locked'}
+            raise CodeLocked
         if code_obj.code != code:
             code_obj.attempts += 1
             await session.commit()
-            return {'status': 'invalid'}
+            raise CodeInvalid
         # OK
         code_obj.is_used = True
         await session.commit()

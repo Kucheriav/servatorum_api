@@ -29,3 +29,12 @@ class InsufficientFundsError(DatabaseError):
 
 class RegistrationError(Exception):
     pass
+
+class CodeExpired(RegistrationError):
+    pass
+
+class CodeLocked(RegistrationError):
+    pass
+
+class CodeInvalid(RegistrationError):
+    pass

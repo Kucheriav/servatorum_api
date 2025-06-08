@@ -30,14 +30,13 @@ async def request_code(data: RequestCodeSchema):
 async def verify_code(data: VerifyCodeSchema):
     try:
         result = await user_crud.verify_code(phone=data.phone, code=data.code)
-        if result['status'] == "ok":
-            return result
-        elif result['status'] == "expired":
-            raise HTTPException(status_code=400, detail="Код истек")
-        elif result['status'] == "locked":
-            raise HTTPException(status_code=400, detail="Превышено количество попыток. Запросите новый код.")
-        else:
-            raise HTTPException(status_code=400, detail="Неверный код")
+        return result
+    except CodeExpired:
+        raise HTTPException(status_code=400, detail="Код истек")
+    except CodeLocked:
+        raise HTTPException(status_code=400, detail="Превышено количество попыток. Запросите новый код.")
+    except CodeInvalid:
+        raise HTTPException(status_code=400, detail="Неверный код")
     except Exception as e:
         logger.error("Ошибка при верификации кода", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
