@@ -1,6 +1,7 @@
 from sqlalchemy.future import select
 from app.database import connection
 from app.models.user_model import *
+from app.models.sphere_model import *
 from app.schemas.user_schema import UserCreate
 from app.errors_custom_types import *
 from app.scripts_utlis.token_utils import *
@@ -101,7 +102,23 @@ class UserCRUD:
     async def create_user(self, user: UserCreate, session):
         logger.info("Creating a new user")
         try:
-            new_user = User(**user.model_dump())
+            spheres = await session.execute(select(Sphere).where(Sphere.id.in_(user.spheres)))
+            sphere_objects = spheres.scalars().all()
+            new_user = User(
+                first_name=user.first_name,
+                surname=user.surname,
+                last_name=user.last_name,
+                date_of_birth=user.date_of_birth,
+                gender=user.gender,
+                city=user.city,
+                address=user.address,
+                email=user.email,
+                phone=user.phone,
+                profile_picture=None,
+                role=user.role,
+                spheres=user.spheres
+            )
+            new_user.set_password(user.password)
             new_user.set_password(user.password)
             session.add(new_user)
             await session.commit()
