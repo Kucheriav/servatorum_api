@@ -39,16 +39,34 @@ class UserCRUD:
     @connection
     async def verify_code(self, phone: str, code: str, session):
         # also check if user exist
+        # now = datetime.now()
+        # stmt = select(VerificationCode).where(
+        #     VerificationCode.phone == phone,
+        #     VerificationCode.is_used is False,
+        #     VerificationCode.created_at >= now - timedelta(minutes=CODE_TTL_MINUTES)
+        # ).order_by(VerificationCode.created_at.desc())
+        # result = await session.execute(stmt)
+        # code_obj = result.scalars().first()
         now = datetime.now()
-        stmt = select(VerificationCode).where(
+        codes_query = select(VerificationCode).where(
             VerificationCode.phone == phone,
-            VerificationCode.is_used is False,
-            VerificationCode.created_at >= now - timedelta(minutes=CODE_TTL_MINUTES)
+            VerificationCode.is_used == False
         ).order_by(VerificationCode.created_at.desc())
-        result = await session.execute(stmt)
-        code_obj = result.scalars().first()
-        if not code_obj:
+        result = await session.execute(codes_query)
+        codes = result.scalars().all()
 
+        logger.info(f"Найдено {len(codes)} неиспользованных кодов для телефона {phone} на {now}")
+        for idx, c in enumerate(codes):
+            logger.info(
+                f"[{idx}] code={c.code}, created_at={c.created_at}, attempts={c.attempts} "
+                f"is_used={c.is_used}, сравниваем с порогом: {now - timedelta(minutes=CODE_TTL_MINUTES)}"
+            )
+        code_obj = None
+        for c in codes:
+            if c.created_at >= now - timedelta(minutes=CODE_TTL_MINUTES):
+                code_obj = c
+                break
+        if not code_obj:
             raise CodeExpired
         if code_obj.attempts >= MAX_ATTEMPTS:
             code_obj.is_used = True
