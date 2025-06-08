@@ -1,5 +1,5 @@
-from pydantic import BaseModel, EmailStr, field_validator, model_validator
-from typing import Optional, Dict, Any
+from pydantic import BaseModel, EmailStr, field_validator, model_validator, Field
+from typing import Optional, Dict, Any, List, Literal
 import datetime
 import re
 
@@ -29,11 +29,6 @@ class VerifyCodeSchema(BaseModel):
             raise ValueError("Номер должен быть в формате 7XXXXXXXXXX или +7XXXXXXXXXX")
         return v.lstrip("+")
 
-class AuthTokenResponse(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-
-
 class UserCreate(BaseModel):
     # login: str
     password: str
@@ -47,6 +42,8 @@ class UserCreate(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     profile_picture: Optional[str] = None
+    role: Literal['helping', 'getting help'] = Field(..., description="Что пользователь хочет")
+    spheres: Optional[List[int]]
 
 
     @field_validator('phone')
@@ -74,15 +71,16 @@ class UserCreate(BaseModel):
 
 class UserResponse(BaseModel):
     id: int
-    login: str
-    email: EmailStr
-    phone: str
     first_name: Optional[str] = None
     surname: Optional[str] = None
     last_name: Optional[str] = None
     date_of_birth: Optional[datetime.date] = None
     gender: Optional[str] = None
     city: Optional[str] = None
+    email: EmailStr
+    phone: str
+    role: str
+    spheres: Optional[List[int]]
 
 
 class UserPatch(BaseModel):
@@ -100,7 +98,6 @@ class UserPatch(BaseModel):
             elif key == 'date_of_birth':
                 try:
                     temp = datetime.datetime.strptime(v[key], '%Y-%m-%d').date()
-                    # parsed_date = datetime.strptime(v[key], '%Y-%m-%d').date()
                     v[key] = temp
                 except ValueError:
                     raise ValueError(f"Invalid date format for key '{key}'. Expected format: YYYY-MM-DD")
