@@ -2,6 +2,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
 from app.database import connection
+from app.models.chat_id_model import *
 from app.models.user_model import *
 from app.models.sphere_model import *
 from app.schemas.user_schema import UserCreate, UserResponse
@@ -51,6 +52,22 @@ class UserCRUD:
         await session.commit()
         await session.refresh(verif_code)
         return code
+
+    @connection
+    async def get_chat_id_for_bot(self, phone: str, session):
+        stmt = select(ChatIdList.chat_id)
+        result = await session.execute(stmt).scalars().all()
+        return result
+
+    @connection
+    async def create_new_chat_id_for_bot(self, chat_id: str, session):
+        new_chat_id = ChatIdList(chat_id=chat_id)
+        session.add(new_chat_id)
+        await session.commit()
+        await session.refresh(new_chat_id)  # Refresh to get the generated ID
+        logger.info(f"Chat_ID created successfully with ID: {new_chat_id.id}")
+
+
 
     @connection
     async def verify_code(self, phone: str, code: str, session):

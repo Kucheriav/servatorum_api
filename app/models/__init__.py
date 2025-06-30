@@ -7,4 +7,5 @@ from .sphere_model import *
 from .transaction_model import *
 from .user_model import *
 from .wallet_model import *
+from .chat_id_model import *
 from app.database import Base

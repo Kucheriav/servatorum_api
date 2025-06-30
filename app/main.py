@@ -6,6 +6,8 @@ from app.database import engine, Base
 from app.routers import (user_routes, company_routes, foundation_routes, fundraising_routes,
                          news_routes, wallet_routes, transaction_routes, sphere_routes)
 
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # try:

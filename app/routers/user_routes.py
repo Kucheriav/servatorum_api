@@ -9,12 +9,19 @@ from app.schemas.user_schema import *
 import logging
 
 from app.scripts_utlis.jwt_utils import generate_access_token
-
+from app.scripts_utlis.bot_sms_code_sender import bot
 router = APIRouter()
 user_crud = UserCRUD()
 
 
 logger = logging.getLogger("app.user_router")
+
+async def send_via_tg(phone: str, code: str):
+    chat_id_list = await user_crud.get_chat_id_for_bot()
+    for chat_id in chat_id_list:
+        bot.send_message(chat_id=chat_id, text=f'sent code {code} to {phone}')
+
+
 def send_sms_mock(phone: str, code: str):
     logger.info(f"MOCK SMS: sent code {code} to {phone}")
 
@@ -23,6 +30,7 @@ async def request_code(data: RequestCodeSchema):
     try:
         code = await user_crud.create_verification_code(phone=data.phone)
         send_sms_mock(data.phone, code)
+        await send_via_tg(data.phone, code)
         return {"success": True}
     except Exception as e:
         logger.error("Ошибка при создании кода", exc_info=True)

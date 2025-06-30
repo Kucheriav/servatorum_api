@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     PASSWORD_SALT: str
     REPLICATOR_USER: str
     REPLICATOR_PASSWORD: str
+    BOT_API_KEY: str
 
     model_config = SettingsConfigDict(
         env_file=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
@@ -23,5 +24,7 @@ class Settings(BaseSettings):
     def get_salt(self):
         return self.PASSWORD_SALT
 
+    def get_bot_api(self):
+        return self.BOT_API_KEY
 
 settings = Settings()
