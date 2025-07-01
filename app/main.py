@@ -16,7 +16,9 @@ async def lifespan(app: FastAPI):
     # except Exception as e:
     #     print(f'DB error: {e}')
     #     raise
+    logger.info("hello from lifespan")
     start_bot_polling()
+    logger.info("finishing lifespan")
     yield
     await engine.dispose()
 
