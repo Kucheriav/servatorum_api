@@ -11,11 +11,11 @@ user_crud = UserCRUD()
 bot = telebot.TeleBot(settings.get_bot_api())
 
 @bot.message_handler(content_types=['text'])
-def check_user_list(message: Message):
+async def check_user_list(message: Message):
     logger.info("got message from user")
-    chat_id_list = user_crud.get_chat_id_for_bot()
+    chat_id_list = await user_crud.get_chat_id_for_bot()
     if not (message.chat.id in chat_id_list):
-        user_crud.create_new_chat_id_for_bot(message.chat.id)
+        await user_crud.create_new_chat_id_for_bot(message.chat.id)
         bot.send_message(message.chat.id, 'Вы успешно добавлены в список на рассылку смс-кодов')
     else:
         bot.send_message(message.chat.id, 'Вы ужке добавлены в список на рассылку')
