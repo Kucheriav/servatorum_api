@@ -1,4 +1,6 @@
 from aiogram import Bot, Dispatcher
+from aiogram.filters.command import CommandStart
+from aiogram.types import Message
 import logging
 from app.config import settings
 from app.crud.user_crud import UserCRUD
@@ -7,7 +9,16 @@ logger = logging.getLogger("bot")
 user_crud = UserCRUD()
 
 
-async def on_start(message):
+
+
+bot = Bot(token=settings.get_bot_api())
+dp = Dispatcher()
+
+async def start_bot():
+    await dp.start_polling(bot)
+
+@dp.message(CommandStart())
+async def on_start(message: Message):
     await message.answer("Привет! Я рассылаю смс коды. Вперед тестировать авторизацию!")
     logger.info("got message from user")
     chat_id_list = await user_crud.get_chat_id_for_bot()
@@ -16,15 +27,6 @@ async def on_start(message):
         await bot.send_message(message.chat.id, 'Вы успешно добавлены в список на рассылку смс-кодов')
     else:
         await bot.send_message(message.chat.id, 'Вы уже добавлены в список на рассылку')
-
-
-bot = Bot(token=settings.get_bot_api())
-dp = Dispatcher()
-dp.message.register(on_start, commands=["start"])
-
-async def start_bot():
-    await dp.start_polling(bot)
-
 
 # def start_bot_polling():
 #     import threading
