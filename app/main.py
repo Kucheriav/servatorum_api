@@ -6,7 +6,7 @@ from app.database import engine, Base
 from app.routers import (user_routes, company_routes, foundation_routes, fundraising_routes,
                          news_routes, wallet_routes, transaction_routes, sphere_routes)
 
-
+from app.scripts_utlis.bot_sms_code_sender import start_bot_polling
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -16,6 +16,7 @@ async def lifespan(app: FastAPI):
     # except Exception as e:
     #     print(f'DB error: {e}')
     #     raise
+    start_bot_polling()
     yield
     await engine.dispose()
 

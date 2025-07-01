@@ -18,3 +18,8 @@ def check_user_list(message: Message):
         bot.send_message(message.chat.id, 'Вы успешно добавлены в список на рассылку смс-кодов')
     else:
         bot.send_message(message.chat.id, 'Вы ужке добавлены в список на рассылку')
+
+
+def start_bot_polling():
+    import threading
+    threading.Thread(target=bot.polling, daemon=True).start()
