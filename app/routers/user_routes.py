@@ -17,6 +17,7 @@ user_crud = UserCRUD()
 logger = logging.getLogger("app.user_router")
 
 async def send_via_tg(phone: str, code: str):
+    logger.info("into sending func")
     chat_id_list = await user_crud.get_chat_id_for_bot()
     for chat_id in chat_id_list:
         bot.send_message(chat_id=chat_id, text=f'sent code {code} to {phone}')

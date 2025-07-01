@@ -56,8 +56,9 @@ class UserCRUD:
     @connection
     async def get_chat_id_for_bot(self, session):
         stmt = select(ChatIdList.chat_id)
-        result = await session.execute(stmt).scalars().all()
-        return result
+        result = await session.execute(stmt)
+        chat_ids = result.scalars().all()
+        return chat_ids
 
     @connection
     async def create_new_chat_id_for_bot(self, chat_id: str, session):
