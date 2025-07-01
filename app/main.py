@@ -1,12 +1,13 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import logging
+import asyncio
 from app.logging_config import setup_logging
 from app.database import engine, Base
 from app.routers import (user_routes, company_routes, foundation_routes, fundraising_routes,
                          news_routes, wallet_routes, transaction_routes, sphere_routes)
 
-from app.scripts_utlis.bot_sms_code_sender import start_bot_polling
+from app.scripts_utlis.bot_sms_code_sender import start_bot
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,10 +18,15 @@ async def lifespan(app: FastAPI):
     #     print(f'DB error: {e}')
     #     raise
     logger.info("hello from lifespan")
-    start_bot_polling()
+    bot_task = asyncio.create_task(start_bot())
     logger.info("finishing lifespan")
     yield
     await engine.dispose()
+    bot_task.cancel()
+    try:
+        await bot_task
+    except asyncio.CancelledError:
+        pass
 
 
 setup_logging()

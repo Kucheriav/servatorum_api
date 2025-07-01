@@ -1,27 +1,38 @@
-import telebot
+from aiogram import Bot, Dispatcher
 import logging
-
-from telebot.types import Message
-
 from app.config import settings
 from app.crud.user_crud import UserCRUD
 
 logger = logging.getLogger("bot")
 user_crud = UserCRUD()
-bot = telebot.TeleBot(settings.get_bot_api())
 
-@bot.message_handler(content_types=['text'])
-async def check_user_list(message: Message):
+
+async def on_start(message):
+    await message.answer("Привет! Я рассылаю смс коды. Вперед тестировать авторизацию!")
     logger.info("got message from user")
     chat_id_list = await user_crud.get_chat_id_for_bot()
     if not (message.chat.id in chat_id_list):
         await user_crud.create_new_chat_id_for_bot(message.chat.id)
-        bot.send_message(message.chat.id, 'Вы успешно добавлены в список на рассылку смс-кодов')
+        await bot.send_message(message.chat.id, 'Вы успешно добавлены в список на рассылку смс-кодов')
     else:
-        bot.send_message(message.chat.id, 'Вы ужке добавлены в список на рассылку')
+        await bot.send_message(message.chat.id, 'Вы уже добавлены в список на рассылку')
 
 
-def start_bot_polling():
-    import threading
-    logger.info("starting polling")
-    threading.Thread(target=bot.polling, daemon=True).start()
+bot = Bot(token=settings.get_bot_api())
+dp = Dispatcher()
+dp.message.register(on_start, commands=["start"])
+
+async def start_bot():
+    await dp.start_polling(bot)
+
+
+# def start_bot_polling():
+#     import threading
+#     logger.info("starting polling")
+#     threading.Thread(target=bot.polling, daemon=True).start()
+#
+
+#
+# def start_bot_polling():
+#     import threading
+#     threading.Thread(target=lambda: executor.start_polling(dp, skip_updates=True), daemon=True).start()
