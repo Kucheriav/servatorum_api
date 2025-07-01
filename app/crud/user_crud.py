@@ -54,7 +54,7 @@ class UserCRUD:
         return code
 
     @connection
-    async def get_chat_id_for_bot(self, phone: str, session):
+    async def get_chat_id_for_bot(self, session):
         stmt = select(ChatIdList.chat_id)
         result = await session.execute(stmt).scalars().all()
         return result
