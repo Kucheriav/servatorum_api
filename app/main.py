@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import logging
 import asyncio
 from app.logging_config import setup_logging
@@ -33,6 +34,13 @@ setup_logging()
 logger = logging.getLogger(__name__)
 
 app = FastAPI(lifespan=lifespan, debug=True)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Разрешаем все домены (для тестирования)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 logger.info("FastAPI starting...")
 
 app.include_router(company_routes.router, prefix="/company", tags=["company"])
