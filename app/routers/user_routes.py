@@ -121,10 +121,16 @@ async def delete_user(user_id: int):
         logger.error("Unexpected error while patching user", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
+
 @router.post("/token/refresh")
 async def refresh_token(refresh_token_in: str):
-    token_obj = await user_crud.get_refresh_token(refresh_token_in)
-    if not token_obj or token_obj.valid_before < datetime.utcnow():
-        raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
-    access_token = generate_user_access_token(token_obj.user_id)
-    return {"access_token": access_token}
+    logger.info(f"Request received to refresh token: {refresh_token_in}")
+    try:
+        result = await user_crud.refresh_access_token(refresh_token_in)
+        return {"access_token": result}
+    except NotFoundError:
+        logger.warning(f"Token {refresh_token_in} not found")
+        raise HTTPException(status_code=404, detail="Token not found")
+    except RefreshTokenExpired:
+        raise HTTPException(status_code=401, detail="Expired refresh token")
+

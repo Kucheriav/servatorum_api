@@ -14,9 +14,10 @@ def generate_user_access_token(user_id: int, expires_minutes=USER_ACCESS_TOKEN_E
     token = jwt.encode(payload, settings.get_salt(), algorithm="HS256")
     return token
 
-def generate_admin_access_token(admin_id: int, expires_minutes=ADMIN_ACCESS_TOKEN_EXPIRE_MINUTES):
+def generate_admin_access_token(admin_id: int, is_superadmin: bool, expires_minutes=ADMIN_ACCESS_TOKEN_EXPIRE_MINUTES):
     payload = {
         "admin_id": admin_id,
+        "is_superadmin": is_superadmin,
         "exp": datetime.now() + timedelta(minutes=expires_minutes)
     }
     token = jwt.encode(payload, settings.get_salt(), algorithm="HS256")

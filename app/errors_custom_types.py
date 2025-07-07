@@ -28,3 +28,6 @@ class CodeLocked(RegistrationError):
 
 class CodeInvalid(RegistrationError):
     pass
+
+class RefreshTokenExpired(Exception):
+    pass

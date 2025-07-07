@@ -99,7 +99,7 @@ class AdminCRUD:
         await session.commit()
         admin = await self.get_admin_by_phone(phone)
         if admin:
-            access_token = generate_admin_access_token(admin.id)
+            access_token = generate_admin_access_token(admin.id, admin.is_superadmin)
             refresh_token_obj = await self.create_refresh_token(admin.id)
             return {'status': 'ok', 'is_new': False,'admin': admin, 'access_token': access_token, 'refresh_token': refresh_token_obj.refresh_token}
         else:
@@ -127,10 +127,11 @@ class AdminCRUD:
             AdminToken.__table__.select().where(AdminToken.refresh_token == refresh_token)
         )
         token_obj = token_obj.first()
-        if not token_obj or token_obj[0].valid_before < datetime.now():
-            return None
+        if not token_obj:
+            raise NotFoundError('Refresh_token', refresh_token)
+        elif token_obj[0].valid_before < datetime.now():
+            raise RefreshTokenExpired('RefreshTokenExpired')
         admin_id = token_obj[0].admin_id
-        # Генерируем новый access_token
         new_access = generate_admin_access_token(admin_id)
         return new_access
 
@@ -155,18 +156,19 @@ class AdminCRUD:
                 username=admin.username,
                 email=admin.email,
                 phone=admin.phone,
+                is_superadmin=admin.is_superadmin,
                 profile_picture=None,
             )
             new_admin.set_password(admin.password)
             session.add(new_admin)
             await session.commit()
             await session.refresh(new_admin)  # Refresh to get the generated ID
-            logger.info(f"User created successfully with ID: {new_admin.id}")
-            access_token = generate_user_access_token(new_admin.id)
+            logger.info(f"Admin created successfully with ID: {new_admin.id}")
+            access_token = generate_admin_access_token(new_admin.id, new_admin.is_superadmin)
             refresh_token_obj = await self.create_refresh_token(new_admin.id)
             return {'admin': new_admin, 'access_token': access_token, 'refresh_token': refresh_token_obj.refresh_token}
         except Exception as e:
-            logger.error("Error occurred while creating user", exc_info=True)
+            logger.error("Error occurred while creating admin", exc_info=True)
             raise
 
     @connection

@@ -14,6 +14,7 @@ class Admin(Base):
     password = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     phone = Column(String, nullable=False,unique=True)
+    is_superadmin = Column(Boolean, default=False)
     profile_picture = Column(String)
 
 

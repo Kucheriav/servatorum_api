@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.exc import IntegrityError
 from app.crud.foundation_crud import FoundationCRUD
 from app.schemas.foundation_schema import *
 from app.errors_custom_types import *
+from app.scripts_utlis.dependencies import get_current_user, owner_or_admin
 import logging
 
 router = APIRouter()
@@ -13,8 +14,8 @@ logger = logging.getLogger("app.foundation_router")
 
 
 @router.post("/create_foundation", response_model=FoundationResponse)
-async def create_foundation(foundation: FoundationCreate):
-    logger.info("Request received to create a foundation")
+async def create_foundation(foundation: FoundationCreate, current_user=Depends(get_current_user)):
+    logger.info(f"{current_user} creates a foundation")
     try:
         result = await foundation_crud.create_foundation(foundation=foundation)
         return result
@@ -36,9 +37,9 @@ async def get_foundation(foundation_id: int):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.patch("/patch_foundation/{foundationid}", response_model=FoundationResponse)
-async def patch_foundation(foundation_id: int, foundation_params_to_patch: FoundationPatch):
-    logger.info(f"Request received to patch foundation with ID: {foundation_id}")
+@router.patch("/patch_foundation/{foundation_id}", response_model=FoundationResponse)
+async def patch_foundation(foundation_id: int, foundation_params_to_patch: FoundationPatch, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} patches foundation with ID: {foundation_id}")
     try:
         patched_foundation = await foundation_crud.patch_foundation(foundation_id=foundation_id,
                                                                       params=foundation_params_to_patch)
@@ -52,8 +53,8 @@ async def patch_foundation(foundation_id: int, foundation_params_to_patch: Found
 
 
 @router.delete("/delete_foundation/{foundation_id}")
-async def delete_foundation(foundation_id: int):
-    logger.info(f"Request received to delete foundation with ID: {foundation_id}")
+async def delete_foundation(foundation_id: int, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} deletes foundation with ID: {foundation_id}")
     try:
         await foundation_crud.delete_foundation(foundation_id=foundation_id)
         return {"message": "Foundation deleted"}

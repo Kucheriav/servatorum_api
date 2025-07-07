@@ -34,6 +34,7 @@ class AdminCreate(BaseModel):
     password: str
     email: EmailStr
     phone: str
+    is_superadmin: Optional[bool] = None
     profile_picture: Optional[str] = None
 
     @field_validator('phone')
@@ -60,6 +61,7 @@ class AdminResponse(BaseModel):
     password: str
     email: EmailStr
     phone: str
+    is_superadmin: Optional[bool] = None
     profile_picture: Optional[str] = None
 
 class AuthResponse(BaseModel):

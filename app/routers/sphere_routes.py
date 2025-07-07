@@ -1,8 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+
+from app.models import Admin
 from app.schemas.sphere_schema import SphereCreate, SphereResponse, SpherePatch
 from app.crud.sphere_crud import SphereCRUD
 from sqlalchemy.exc import IntegrityError
 from app.errors_custom_types import NotFoundError
+from app.scripts_utlis.dependencies import get_current_admin
 import logging
 
 router = APIRouter()
@@ -10,7 +13,8 @@ crud = SphereCRUD()
 logger = logging.getLogger("app.sphere_router")
 
 @router.post("/spheres", response_model=SphereResponse)
-async def create_sphere(sphere: SphereCreate):
+async def create_sphere(sphere: SphereCreate, current_admin: Admin=Depends(get_current_admin)):
+    logger.info(f"{current_admin.username} creates a sphere")
     try:
         created = await crud.create_sphere(sphere)
         return created

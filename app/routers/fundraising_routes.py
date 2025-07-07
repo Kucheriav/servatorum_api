@@ -1,24 +1,22 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import ValidationError
 from sqlalchemy import exc
 from app.crud.fundraising_crud import FundraisingCRUD
 from app.schemas.fundraising_schema import *
+from app.scripts_utlis.dependencies import get_current_user, owner_or_admin
 import logging
 
 router = APIRouter()
 fundraising_crud = FundraisingCRUD()
-
-# Create a logger specific to this module
 logger = logging.getLogger("app.router")
 
 # TODO optimize exceptions chain
 
 @router.post("/create_fundraising", response_model=FundraisingResponce)
-async def create_fundraising(fundraising: FundraisingCreate):
-    logger.info("Request received to create fundraising")
+async def create_fundraising(fundraising: FundraisingCreate, current_user=Depends(get_current_user)):
+    logger.info(f"{current_user} creates fundraising")
     try:
         result = await fundraising_crud.create_fundraising(fundraising=fundraising)
-        logger.info("Fundraising created successfully")
         return result
     except ValidationError as e:
         logger.error("Validation error while creating fundraising", exc_info=True)
@@ -42,9 +40,7 @@ async def get_fundraising(fundraising_id: int):
     logger.info(f"Request received to get fundraising with ID: {fundraising_id}")
     fundraising = await fundraising_crud.get_fundraising(fundraising_id=fundraising_id)
     if fundraising:
-        logger.info(f"Fundraising with ID {fundraising_id} retrieved successfully")
         return fundraising
-    logger.warning(f"Fundraising with ID {fundraising_id} not found")
     raise HTTPException(status_code=404, detail="Fundraising not found")
 
 
@@ -60,8 +56,8 @@ async def get_fundraisings(page: int = 1, page_size: int = 10):
 
 
 @router.patch("/patch_fundraising/{fundraising_id}", response_model=FundraisingResponce)
-async def patch_fundraising(fundraising_id: int, fundraising_params_to_patch: FundraisingPatch):
-    logger.info(f"Request received to patch fundraising with ID: {fundraising_id}")
+async def patch_fundraising(fundraising_id: int, fundraising_params_to_patch: FundraisingPatch, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} patches fundraising with ID: {fundraising_id}")
     patched_fundraising = await fundraising_crud.patch_fundraising(fundraising_id=fundraising_id,
                                                                    params=fundraising_params_to_patch)
     if patched_fundraising:
@@ -72,8 +68,8 @@ async def patch_fundraising(fundraising_id: int, fundraising_params_to_patch: Fu
 
 
 @router.delete("/delete_fundraising/{fundraising_id}")
-async def delete_fundraising(fundraising_id: int):
-    logger.info(f"Request received to delete fundraising with ID: {fundraising_id}")
+async def delete_fundraising(fundraising_id: int, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} deletes fundraising with ID: {fundraising_id}")
     if await fundraising_crud.delete_fundraising(fundraising_id=fundraising_id):
         logger.info(f"Fundraising with ID {fundraising_id} deleted successfully")
         return {"message": "Fundraising deleted"}

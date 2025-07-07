@@ -8,3 +8,14 @@
 #     drop_database(engine.url)
 #     engine = None
 #     engine = create_engine('postgresql://gleb:postgres@localhost:5432/servatorium_test_db')
+
+
+
+from fastapi import Depends
+
+@router.post("/patch_user/{user_id}")
+async def patch_user(user_id: int, ..., user=Depends(get_current_user)):
+    ...
+
+# или целиком для всех ручек в роутере
+user_router = APIRouter(dependencies=[Depends(get_current_user)])

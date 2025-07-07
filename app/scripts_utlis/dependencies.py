@@ -3,6 +3,8 @@ from fastapi.security import OAuth2PasswordBearer
 from app.scripts_utlis.jwt_utils import *
 from app.crud.user_crud import UserCRUD
 from app.crud.admin_crud import AdminCRUD
+from app.models.user_model import User
+from app.models.admin_model import Admin
 import jwt
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -40,8 +42,6 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
     except Exception:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка проверки токена")
 
-
-
 async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Нет access token")
@@ -64,3 +64,24 @@ async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme
         )
     except Exception:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка проверки токена")
+
+async def owner_or_admin(user_id: int,user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
+    """
+    Dependency для проверки прав: только владелец (user_id) или админ может выполнять действие.
+    """
+    if admin is not None:
+        return {"admin": admin}
+    if user is not None and user.id == user_id:
+        return {"user": user}
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Operation permitted only for owner or admin"
+    )
+
+async def superadmin_required(current_admin=Depends(get_current_admin)):
+    if not getattr(current_admin, "is_superadmin", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only superadmin can perform this action"
+        )
+    return current_admin
