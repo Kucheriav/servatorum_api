@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.exc import IntegrityError
 from app.crud.transaction_crud import TransactionCRUD
 from app.schemas.transaction_schema import *
 from app.errors_custom_types import *
+from app.scripts_utlis.dependencies import get_current_user, owner_or_admin, get_current_admin
 import logging
 
 router = APIRouter()
@@ -10,11 +11,10 @@ transaction_crud = TransactionCRUD()
 logger = logging.getLogger("app.transaction_router")
 
 @router.post("/create_transaction", response_model=TransactionResponse)
-async def create_transaction(transaction: TransactionCreate):
-    logger.info("Запрос на создание транзакции")
+async def create_transaction(transaction: TransactionCreate, current_user=Depends(get_current_user)):
+    logger.info(f"{current_user.phone} creates a transaction")
     try:
         result = await transaction_crud.create_transaction(tx=transaction)
-        logger.info("Транзакция успешно создана")
         return result
     except ValidationError as e:
         logger.error("Ошибка валидации при создании транзакции", exc_info=True)
@@ -36,8 +36,8 @@ async def create_transaction(transaction: TransactionCreate):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_transaction/{transaction_id}", response_model=TransactionResponse)
-async def get_transaction(transaction_id: int):
-    logger.info(f"Запрос на получение транзакции с ID: {transaction_id}")
+async def get_transaction(transaction_id: int, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} requests transaction with ID: {transaction_id}")
     try:
         tx = await transaction_crud.get_transaction(transaction_id=transaction_id)
         logger.info(f"Транзакция с ID {transaction_id} найдена")
@@ -50,8 +50,8 @@ async def get_transaction(transaction_id: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_transactions_for_wallet/{wallet_id}", response_model=List[TransactionResponse])
-async def get_transactions_for_wallet(wallet_id: int, limit: int = 30, offset: int = 0):
-    logger.info(f"Запрос на историю транзакций для кошелька ID: {wallet_id}")
+async def get_transactions_for_wallet(wallet_id: int, limit: int = 30, offset: int = 0, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} requests transactions for wallet with ID: {wallet_id}")
     try:
         txs = await transaction_crud.get_transactions_for_wallet(wallet_id=wallet_id, limit=limit, offset=offset)
         logger.info(f"Найдено {len(txs)} транзакций для кошелька ID {wallet_id}")
@@ -61,8 +61,8 @@ async def get_transactions_for_wallet(wallet_id: int, limit: int = 30, offset: i
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.delete("/delete_transaction/{transaction_id}")
-async def delete_transaction(transaction_id: int):
-    logger.info(f"Запрос на удаление транзакции с ID: {transaction_id}")
+async def delete_transaction(transaction_id: int, current_admin=Depends(get_current_admin)):
+    logger.info(f"{current_admin.username} requests delete transaction with ID: {transaction_id}")
     try:
         await transaction_crud.delete_transaction(transaction_id=transaction_id)
         logger.info(f"Транзакция с ID {transaction_id} успешно удалена")

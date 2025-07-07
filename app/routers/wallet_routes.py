@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.exc import IntegrityError
 from app.crud.wallet_crud import WalletCRUD
 from app.schemas.wallet_schema import *
 from app.errors_custom_types import *
+from app.scripts_utlis.dependencies import get_current_user, owner_or_admin
 import logging
 
 router = APIRouter()
@@ -10,8 +11,8 @@ wallet_crud = WalletCRUD()
 logger = logging.getLogger("app.wallet_router")
 
 @router.post("/create_wallet", response_model=WalletResponse)
-async def create_wallet(wallet: WalletCreate):
-    logger.info("Запрос на создание кошелька")
+async def create_wallet(wallet: WalletCreate, current_user=Depends(get_current_user)):
+    logger.info(f"{current_user.phone} creates a wallet")
     try:
         result = await wallet_crud.create_wallet(wallet=wallet)
         logger.info("Кошелек успешно создан")
@@ -33,8 +34,8 @@ async def create_wallet(wallet: WalletCreate):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_wallet/{wallet_id}", response_model=WalletResponse)
-async def get_wallet(wallet_id: int):
-    logger.info(f"Запрос на получение кошелька с ID: {wallet_id}")
+async def get_wallet(wallet_id: int, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} requests wallet with ID: {wallet_id}")
     try:
         wallet = await wallet_crud.get_wallet(wallet_id=wallet_id)
         logger.info(f"Кошелек с ID {wallet_id} успешно найден")
@@ -47,8 +48,8 @@ async def get_wallet(wallet_id: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_wallet_by_owner", response_model=WalletResponse)
-async def get_wallet_by_owner(owner_type: str, owner_id: int):
-    logger.info(f"Запрос на получение кошелька по owner_type={owner_type}, owner_id={owner_id}")
+async def get_wallet_by_owner(owner_type: str, owner_id: int, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} requests wallet with owner_type={owner_type}, owner_id={owner_id}")
     try:
         wallet = await wallet_crud.get_wallet_by_owner(owner_type=owner_type, owner_id=owner_id)
         logger.info(f"Кошелек для {owner_type} с owner_id={owner_id} найден")
@@ -61,8 +62,8 @@ async def get_wallet_by_owner(owner_type: str, owner_id: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.patch("/patch_wallet/{wallet_id}", response_model=WalletResponse)
-async def patch_wallet(wallet_id: int, wallet_params_to_patch: WalletPatch):
-    logger.info(f"Запрос на patch кошелька ID: {wallet_id}")
+async def patch_wallet(wallet_id: int, wallet_params_to_patch: WalletPatch, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} patches wallet: {wallet_id}")
     try:
         patched_wallet = await wallet_crud.patch_wallet(wallet_id=wallet_id, params=wallet_params_to_patch.params)
         logger.info(f"Кошелек ID {wallet_id} успешно обновлен")
@@ -75,8 +76,8 @@ async def patch_wallet(wallet_id: int, wallet_params_to_patch: WalletPatch):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.delete("/delete_wallet/{wallet_id}")
-async def delete_wallet(wallet_id: int):
-    logger.info(f"Запрос на удаление кошелька с ID: {wallet_id}")
+async def delete_wallet(wallet_id: int, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} deletes wallet: {wallet_id}")
     try:
         await wallet_crud.delete_wallet(wallet_id=wallet_id)
         logger.info(f"Кошелек с ID {wallet_id} успешно удален")

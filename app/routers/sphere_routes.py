@@ -43,7 +43,8 @@ async def get_sphere(sphere_id: int):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.patch("/spheres/{sphere_id}", response_model=SphereResponse)
-async def patch_sphere(sphere_id: int, patch_data: SpherePatch):
+async def patch_sphere(sphere_id: int, patch_data: SpherePatch, current_admin: Admin=Depends(get_current_admin)):
+    logger.info(f"{current_admin.username} patches a sphere")
     try:
         return await crud.patch_sphere(sphere_id, patch_data)
     except NotFoundError:
@@ -53,7 +54,8 @@ async def patch_sphere(sphere_id: int, patch_data: SpherePatch):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.delete("/spheres/{sphere_id}")
-async def delete_sphere(sphere_id: int):
+async def delete_sphere(sphere_id: int, current_admin: Admin=Depends(get_current_admin)):
+    logger.info(f"{current_admin.username} deletes a sphere")
     try:
         await crud.delete_sphere(sphere_id)
         return {"success": True}

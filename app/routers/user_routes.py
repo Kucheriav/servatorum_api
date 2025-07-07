@@ -1,19 +1,16 @@
-from typing import Union
-
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from app.errors_custom_types import *
 from pydantic import ValidationError
 from sqlalchemy import exc
 from app.crud.user_crud import UserCRUD
 from app.schemas.user_schema import *
+from app.scripts_utlis.dependencies import get_current_user, owner_or_admin
 import logging
-
-from app.scripts_utlis.jwt_utils import generate_user_access_token
 from app.scripts_utlis.bot_sms_code_sender import bot
+
+
 router = APIRouter()
 user_crud = UserCRUD()
-
-
 logger = logging.getLogger("app.user_router")
 
 async def send_via_tg(phone: str, code: str):
@@ -93,8 +90,8 @@ async def get_user(user_id: int):
 
 
 @router.patch("/patch_user/{user_id}", response_model=UserResponse)
-async def patch_user(user_id: int, user_params_to_patch: UserPatch):
-    logger.info(f"Request received to patch user with ID: {user_id}")
+async def patch_user(user_id: int, user_params_to_patch: UserPatch, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} patches user with ID: {user_id}")
     try:
         patched_user = await user_crud.patch_user(user_id=user_id, params=user_params_to_patch)
         logger.info(f"User with ID {user_id} patched successfully")
@@ -108,8 +105,8 @@ async def patch_user(user_id: int, user_params_to_patch: UserPatch):
 
 
 @router.delete("/delete_user/{user_id}")
-async def delete_user(user_id: int):
-    logger.info(f"Request received to delete user with ID: {user_id}")
+async def delete_user(user_id: int, current_actor=Depends(owner_or_admin)):
+    logger.info(f"{current_actor.phone} deletes user with ID: {user_id}")
     try:
         await user_crud.delete_user(user_id=user_id)
         logger.info(f"User with ID {user_id} deleted successfully")
