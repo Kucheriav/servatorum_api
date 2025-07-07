@@ -39,15 +39,15 @@ class UserCRUD:
     async def create_verification_code(self, phone: str, session):
         # Сбросить старые коды для этого телефона
         await session.execute(
-            VerificationCode.__table__.update()
+            UserVerificationCode.__table__.update()
             .where(
-                VerificationCode.phone == phone,
-                VerificationCode.is_used == False
+                UserVerificationCode.phone == phone,
+                UserVerificationCode.is_used == False
             )
             .values(is_used=True)
         )
         code = f"{random.randint(1000, 9999)}"
-        verif_code = VerificationCode(phone=phone, code=code)
+        verif_code = UserVerificationCode(phone=phone, code=code)
         session.add(verif_code)
         await session.commit()
         await session.refresh(verif_code)
@@ -82,10 +82,10 @@ class UserCRUD:
         # result = await session.execute(stmt)
         # code_obj = result.scalars().first()
         now = datetime.now()
-        codes_query = select(VerificationCode).where(
-            VerificationCode.phone == phone,
-            VerificationCode.is_used == False
-        ).order_by(VerificationCode.created_at.desc())
+        codes_query = select(UserVerificationCode).where(
+            UserVerificationCode.phone == phone,
+            UserVerificationCode.is_used == False
+        ).order_by(UserVerificationCode.created_at.desc())
         result = await session.execute(codes_query)
         codes = result.scalars().all()
         # logging this!
@@ -115,7 +115,7 @@ class UserCRUD:
         await session.commit()
         user = await self.get_user_by_phone(phone)
         if user:
-            access_token = generate_access_token(user.id)
+            access_token = generate_user_access_token(user.id)
             refresh_token_obj = await self.create_refresh_token(user.id)
             result = await session.execute(
                 select(User).options(selectinload(User.spheres)).where(User.id == user.id)
@@ -153,7 +153,7 @@ class UserCRUD:
             return None
         user_id = token_obj[0].user_id
         # Генерируем новый access_token
-        new_access = generate_access_token(user_id)
+        new_access = generate_user_access_token(user_id)
         return new_access
 
     @connection
@@ -161,13 +161,13 @@ class UserCRUD:
         logger.info("Creating a new user")
         try:
             verif_code = await session.execute(
-                select(VerificationCode)
+                select(UserVerificationCode)
                 .where(
-                    VerificationCode.phone == user.phone,
-                    VerificationCode.is_used == True,  # был использован (подтверждён)
-                    VerificationCode.created_at >= datetime.now() - timedelta(minutes=CODE_TTL_MINUTES)
+                    UserVerificationCode.phone == user.phone,
+                    UserVerificationCode.is_used == True,  # был использован (подтверждён)
+                    UserVerificationCode.created_at >= datetime.now() - timedelta(minutes=CODE_TTL_MINUTES)
                 )
-                .order_by(VerificationCode.created_at.desc())
+                .order_by(UserVerificationCode.created_at.desc())
             )
             verif_code = verif_code.scalars().first()
             if not verif_code:
@@ -190,12 +190,11 @@ class UserCRUD:
                 spheres=sphere_objects
             )
             new_user.set_password(user.password)
-            new_user.set_password(user.password)
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)  # Refresh to get the generated ID
             logger.info(f"User created successfully with ID: {new_user.id}")
-            access_token = generate_access_token(new_user.id)
+            access_token = generate_user_access_token(new_user.id)
             refresh_token_obj = await self.create_refresh_token(new_user.id)
             result = await session.execute(
                 select(User).options(selectinload(User.spheres)).where(User.id == new_user.id)
@@ -234,7 +233,7 @@ class UserCRUD:
                         logger.debug(f"Updated field {key} to {value} for user ID {user_id}")
                     else:
                         logger.warning(f"Field {key} not found in User model")
-                        raise UserUpdateError(f"FIELD_NOT_FOUND: {key}")
+                        raise UpdateError('User', user_id)
                 await session.commit()
                 await session.refresh(user_to_patch)
                 logger.info(f"User with ID {user_id} patched successfully")

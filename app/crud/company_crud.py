@@ -75,7 +75,7 @@ class CompanyCRUD:
                         logger.debug(f"Updated field {key} to {value} for Company ID {company_id}")
                     else:
                         logger.warning(f"Field {key} not found in Company model")
-                        raise CompanyUpdateError(f"FIELD_NOT_FOUND: {key}")
+                        raise UpdateError('Company', company_id)
                 await session.commit()
                 await session.refresh(company_to_patch)
                 logger.info(f"Company with ID {company_id} patched successfully")

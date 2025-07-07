@@ -76,7 +76,7 @@ class FoundationCRUD:
                         logger.debug(f"Updated field {key} to {value} for Foundation ID {foundation_id}")
                     else:
                         logger.warning(f"Field {key} not found in Foundation model")
-                        raise FoundationUpdateError(f"FIELD_NOT_FOUND: {key}")
+                        raise UpdateError('Foundation', foundation_id)
                 await session.commit()
                 await session.refresh(foundation_to_patch)
                 logger.info(f"Foundation with ID {foundation_id} patched successfully")

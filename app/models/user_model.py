@@ -77,8 +77,8 @@ class UserEntityRelation(Base):
     entity_type = Column(String(50))  # "company" или "foundation"
 
 
-class VerificationCode(Base):
-    __tablename__ = "verification_codes"
+class UserVerificationCode(Base):
+    __tablename__ = "user_verification_codes"
     id = Column(Integer, primary_key=True, index=True)
     phone = Column(String, index=True, nullable=False)
     code = Column(String, nullable=False)

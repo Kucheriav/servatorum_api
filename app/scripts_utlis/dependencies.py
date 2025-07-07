@@ -2,10 +2,12 @@ from fastapi import Request, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from app.scripts_utlis.jwt_utils import *
 from app.crud.user_crud import UserCRUD
+from app.crud.admin_crud import AdminCRUD
 import jwt
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 user_crud = UserCRUD()
+admin_crud = AdminCRUD()
 
 async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)):
     """
@@ -30,6 +32,31 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         if refreshed is None:
             raise HTTPException(status_code=401, detail="Refresh token просрочен/невалиден, нужна повторная авторизация")
         # Можно добавить заголовок с новым access_token для фронта
+        raise HTTPException(
+            status_code=401,
+            detail="Access token обновлён, используйте новый токен",
+            headers={"X-New-Access-Token": refreshed}
+        )
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка проверки токена")
+
+
+
+async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme)):
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Нет access token")
+    try:
+        payload = decode_access_token(token)
+        admin_id = payload["admin_id"]
+        admin = await admin_crud.get_admin(admin_id)
+        return admin
+    except jwt.ExpiredSignatureError:
+        refresh_token = request.cookies.get("refresh_token")
+        if not refresh_token:
+            raise HTTPException(status_code=401, detail="Refresh token отсутствует, нужна повторная авторизация")
+        refreshed = await user_crud.refresh_access_token(refresh_token)
+        if refreshed is None:
+            raise HTTPException(status_code=401, detail="Refresh token просрочен/невалиден, нужна повторная авторизация")
         raise HTTPException(
             status_code=401,
             detail="Access token обновлён, используйте новый токен",

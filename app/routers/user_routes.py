@@ -8,7 +8,7 @@ from app.crud.user_crud import UserCRUD
 from app.schemas.user_schema import *
 import logging
 
-from app.scripts_utlis.jwt_utils import generate_access_token
+from app.scripts_utlis.jwt_utils import generate_user_access_token
 from app.scripts_utlis.bot_sms_code_sender import bot
 router = APIRouter()
 user_crud = UserCRUD()
@@ -126,5 +126,5 @@ async def refresh_token(refresh_token_in: str):
     token_obj = await user_crud.get_refresh_token(refresh_token_in)
     if not token_obj or token_obj.valid_before < datetime.utcnow():
         raise HTTPException(status_code=401, detail="Invalid or expired refresh token")
-    access_token = generate_access_token(token_obj.user_id)
+    access_token = generate_user_access_token(token_obj.user_id)
     return {"access_token": access_token}

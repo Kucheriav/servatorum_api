@@ -56,7 +56,7 @@ class FundraisingCRUD:
                         logger.debug(f"Updated field {key} to {value} for fundraising ID {fundraising_id}")
                     else:
                         logger.warning(f"Field {key} not found in Fundraising model")
-                        raise FundraisingUpdateError(f"FIELD_NOT_FOUND: {key}")
+                        raise UpdateError('Fundraising', fundraising_id)
                 await session.commit()
                 await session.refresh(fundraising_to_patch)
                 logger.info(f"Fundraising with ID {fundraising_id} patched successfully")
