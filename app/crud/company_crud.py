@@ -1,5 +1,6 @@
 import logging
 from app.database import connection
+from app.models.user_model import UserEntityRelation
 from app.models.company_model import Company
 from app.schemas.company_schema import *
 from app.errors_custom_types import *
@@ -10,7 +11,7 @@ logger = logging.getLogger("app.company_crud")
 
 class CompanyCRUD:
     @connection
-    async def create_company(self, company: CompanyCreate, session):
+    async def create_company(self, company: CompanyCreate, user_id: int,  session):
         logger.info("Creating a new company")
         try:
             new_company = Company(
@@ -29,6 +30,14 @@ class CompanyCRUD:
             await session.commit()
             await session.refresh(new_company)
             logger.info(f"Company created successfully with ID: {new_company.id}")
+            new_relation = UserEntityRelation(
+                user_id=user_id,
+                entity_id=new_company.id,
+                entity_type="company"
+            )
+            session.add(new_relation)
+            await session.commit()
+            logger.info(f"Added data into UserEntityRelation table")
             return new_company
         except IntegrityError as e:
             logger.error("Integrity Error occurred while creating company", exc_info=True)
@@ -62,7 +71,6 @@ class CompanyCRUD:
                 raise NotFoundError('Company', company_id)
         except Exception as e:
             logger.error(f"Error occurred while fetching company with ID {company_id}", exc_info=True)
-            raise
 
     @connection
     async def patch_company(self, company_id: int, session, params):

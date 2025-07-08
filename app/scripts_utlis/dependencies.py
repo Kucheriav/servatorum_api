@@ -3,6 +3,8 @@ from fastapi.security import OAuth2PasswordBearer
 from app.scripts_utlis.jwt_utils import *
 from app.crud.user_crud import UserCRUD
 from app.crud.admin_crud import AdminCRUD
+from app.crud.fundraising_crud import FundraisingCRUD
+from app.crud.wallet_crud import WalletCRUD
 from app.models.user_model import User
 from app.models.admin_model import Admin
 import jwt
@@ -10,6 +12,9 @@ import jwt
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 user_crud = UserCRUD()
 admin_crud = AdminCRUD()
+wallet_crud = WalletCRUD()
+fundraising_crud = FundraisingCRUD()
+
 
 async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)):
     """
@@ -65,10 +70,7 @@ async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme
     except Exception:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка проверки токена")
 
-async def owner_or_admin(user_id: int,user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
-    """
-    Dependency для проверки прав: только владелец (user_id) или админ может выполнять действие.
-    """
+async def user_owner_or_admin(user_id: int,user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:
         return {"admin": admin}
     if user is not None and user.id == user_id:
@@ -77,6 +79,65 @@ async def owner_or_admin(user_id: int,user: User = Depends(get_current_user), ad
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Operation permitted only for owner or admin"
     )
+
+async def company_owner_or_admin(company_id: int, current_user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
+    if admin is not None:
+        return {"admin": admin}
+    user = await user_crud.get_user_by_entity(company_id, 'company')
+    if user is not None and user.id == current_user.id:
+        return {"user": user}
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Operation permitted only for owner or admin"
+    )
+
+async def foundation_owner_or_admin(foundation_id: int, current_user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
+    if admin is not None:
+        return {"admin": admin}
+    user = await user_crud.get_user_by_entity(foundation_id, 'foundation')
+    if user is not None and user.id == current_user.id:
+        return {"user": user}
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Operation permitted only for owner or admin"
+    )
+
+async def fundraising_owner_or_admin(fundraising_id: int, current_user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
+    if admin is not None:
+        return {"admin": admin}
+    user = await fundraising_crud.get_fundraising_owner(fundraising_id)
+    if user is not None and user.id == current_user.id:
+        return {"user": user}
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Operation permitted only for owner or admin"
+    )
+
+async def transaction_users_or_admin(transaction_id: int, current_user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
+    if admin is not None:
+        return {"admin": admin}
+    user = await fundraising_crud.get_fundraising_owner(fundraising_id)
+    if user is not None and user.id == current_user.id:
+        return {"user": user}
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Operation permitted only for owner or admin"
+    )
+# def make_owner_or_admin_dependency(get_obj_by_id, owner_id_attr: str, param_name: str):
+#     async def dep(user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin), **kwargs):
+#         obj_id = kwargs.get(param_name, None)
+#         obj = await get_obj_by_id(obj_id)
+#         if obj is None:
+#             raise HTTPException(status_code=404, detail="Object not found")
+#         if admin is not None:
+#             return {"admin": admin}
+#         if user is not None and getattr(obj, owner_id_attr) == user.id:
+#             return {"user": user}
+#         raise HTTPException(status_code=403, detail="Not allowed")
+#     return dep
+#
+# company_owner_or_admin = make_owner_or_admin_dependency(company_crud.get_company, "owner_id", "company_id")
+
 
 async def superadmin_required(current_admin=Depends(get_current_admin)):
     if not getattr(current_admin, "is_superadmin", False):

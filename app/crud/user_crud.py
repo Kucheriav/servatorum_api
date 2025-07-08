@@ -223,6 +223,36 @@ class UserCRUD:
             raise
 
     @connection
+    async def get_user_by_entity(self, entity_id: int, entity_type: str, session):
+        logger.info(f"Fetching user for entity_id={entity_id}, entity_type='{entity_type}'")
+        try:
+            # Находим связь пользователь-сущность
+            stmt = select(UserEntityRelation).where(
+                UserEntityRelation.entity_id == entity_id,
+                UserEntityRelation.entity_type == entity_type
+            )
+            relation_result = await session.execute(stmt)
+            relation = relation_result.scalars().first()
+            if not relation:
+                logger.warning(f"No user relation found for entity_id={entity_id}, entity_type='{entity_type}'")
+                raise NotFoundError('UserEntityRelation', f"{entity_type}:{entity_id}")
+            user = await session.get(User, relation.user_id)
+            if user:
+                logger.info(
+                    f"User with ID {relation.user_id} retrieved successfully for entity {entity_type}:{entity_id}")
+                return user
+            else:
+                logger.warning(f"User with ID {relation.user_id} not found")
+                raise NotFoundError('User', relation.user_id)
+        except Exception as e:
+            logger.error(
+                f"Error occurred while fetching user for entity_id={entity_id}, entity_type='{entity_type}'",
+                exc_info=True
+            )
+            raise
+
+
+    @connection
     async def patch_user(self, user_id: int, session, params):
         try:
             user_to_patch = await session.get(User, user_id)

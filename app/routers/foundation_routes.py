@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.crud.foundation_crud import FoundationCRUD
 from app.schemas.foundation_schema import *
 from app.errors_custom_types import *
-from app.scripts_utlis.dependencies import get_current_user, owner_or_admin
+from app.scripts_utlis.dependencies import get_current_user, foundation_owner_or_admin
 import logging
 
 router = APIRouter()
@@ -38,7 +38,7 @@ async def get_foundation(foundation_id: int):
 
 
 @router.patch("/patch_foundation/{foundation_id}", response_model=FoundationResponse)
-async def patch_foundation(foundation_id: int, foundation_params_to_patch: FoundationPatch, current_actor=Depends(owner_or_admin)):
+async def patch_foundation(foundation_id: int, foundation_params_to_patch: FoundationPatch, current_actor=Depends(foundation_owner_or_admin)):
     logger.info(f"{current_actor.phone} patches foundation with ID: {foundation_id}")
     try:
         patched_foundation = await foundation_crud.patch_foundation(foundation_id=foundation_id,
@@ -53,7 +53,7 @@ async def patch_foundation(foundation_id: int, foundation_params_to_patch: Found
 
 
 @router.delete("/delete_foundation/{foundation_id}")
-async def delete_foundation(foundation_id: int, current_actor=Depends(owner_or_admin)):
+async def delete_foundation(foundation_id: int, current_actor=Depends(foundation_owner_or_admin)):
     logger.info(f"{current_actor.phone} deletes foundation with ID: {foundation_id}")
     try:
         await foundation_crud.delete_foundation(foundation_id=foundation_id)

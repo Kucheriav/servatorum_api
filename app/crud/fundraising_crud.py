@@ -2,7 +2,8 @@ from sqlalchemy.future import select
 from sqlalchemy import func
 import logging
 from app.database import connection
-from app.models.fundraising_model import Fundraising
+
+from app.models import Fundraising, User
 from app.schemas.fundraising_schema import *
 from app.errors_custom_types import *
 
@@ -41,6 +42,21 @@ class FundraisingCRUD:
             else:
                 logger.warning(f"Fundraising with ID {fundraising_id} not found")
                 raise NotFoundError('Fundraising', fundraising_id)
+        except Exception as e:
+            logger.error(f"Error occurred while fetching fundraising with ID {fundraising_id}", exc_info=True)
+            raise
+
+    @connection
+    async def get_fundraising_owner(self, fundraising_id: int, session):
+        logger.info(f"Fetching fundraising owner with ID: {fundraising_id}")
+        try:
+            fundraising = await session.get(Fundraising, fundraising_id)
+            if not fundraising:
+                logger.warning(f"Fundraising with ID {fundraising_id} not found")
+                raise NotFoundError('Fundraising', fundraising_id)
+            user = await session.get(User, fundraising.owner_id)
+            logger.info(f"user with ID {user.id} retrieved successfully")
+            return user
         except Exception as e:
             logger.error(f"Error occurred while fetching fundraising with ID {fundraising_id}", exc_info=True)
             raise

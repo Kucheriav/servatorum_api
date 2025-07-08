@@ -2,6 +2,7 @@ from sqlalchemy.future import select
 import logging
 from app.database import connection
 from app.models.foundation_model import Foundation
+from app.models.user_model import UserEntityRelation
 from app.schemas.foundation_schema import *
 from app.errors_custom_types import *
 from sqlalchemy.exc import IntegrityError
@@ -11,7 +12,7 @@ logger = logging.getLogger("app.foundation_crud")
 
 class FoundationCRUD:
     @connection
-    async def create_foundation(self, foundation: FoundationCreate, session):
+    async def create_foundation(self, foundation: FoundationCreate, user_id: int, session):
         logger.info("Creating a new foundation")
         try:
             new_foundation = Foundation(
@@ -30,6 +31,14 @@ class FoundationCRUD:
             await session.commit()
             await session.refresh(new_foundation)
             logger.info(f"Foundation created successfully with ID: {new_foundation.id}")
+            new_relation = UserEntityRelation(
+                user_id=user_id,
+                entity_id=new_foundation.id,
+                entity_type="company"
+            )
+            session.add(new_relation)
+            await session.commit()
+            logger.info(f"Added data into UserEntityRelation table")
             return new_foundation
         except IntegrityError as e:
             logger.error("Integrity Error occurred while creating foundation", exc_info=True)

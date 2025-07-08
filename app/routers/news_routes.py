@@ -3,7 +3,7 @@ from pydantic import ValidationError
 from sqlalchemy import exc
 from app.crud.news_crud import NewsCRUD
 from app.schemas.news_schema import *
-from app.scripts_utlis.dependencies import get_current_user, owner_or_admin
+from app.scripts_utlis.dependencies import get_current_user, get_current_admin
 import logging
 
 router = APIRouter()
@@ -57,7 +57,7 @@ async def get_news(page: int = 1, page_size: int = 10):
 
 
 @router.patch("/patch_news/{news_id}", response_model=NewsResponse)
-async def patch_news(news_id: int, news_params_to_patch: NewsPatch, current_actor=Depends(owner_or_admin)):
+async def patch_news(news_id: int, news_params_to_patch: NewsPatch, current_actor=Depends(get_current_admin)):
     logger.info(f"{current_actor.phone} patches news with ID: {news_id}")
     patched_news = await news_crud.patch_news(news_id=news_id, params=news_params_to_patch)
     if patched_news:
@@ -67,7 +67,7 @@ async def patch_news(news_id: int, news_params_to_patch: NewsPatch, current_acto
     raise HTTPException(status_code=404, detail="Новость не найдена")
 
 @router.delete("/delete_news/{news_id}")
-async def delete_news(news_id: int, current_actor=Depends(owner_or_admin)):
+async def delete_news(news_id: int, current_actor=Depends(get_current_admin)):
     logger.info(f"{current_actor.phone} deletes news with ID: {news_id}")
     if await news_crud.delete_news(news_id=news_id):
         logger.info(f"News item with ID {news_id} deleted successfully")

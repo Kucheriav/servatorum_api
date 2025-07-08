@@ -1,7 +1,7 @@
 from sqlalchemy.future import select
 import logging
 from app.database import connection
-from app.models.transaction_model import Transaction
+from app.models import Transaction, User
 from app.models.wallet_model import Wallet
 from app.schemas.transaction_schema import TransactionCreate
 from app.errors_custom_types import *
@@ -40,6 +40,15 @@ class TransactionCRUD:
             logger.warning(f"Transaction id={transaction_id} not found")
             raise NotFoundError("Транзакция не найдена")
         return tx
+
+    @connection
+    async def get_transaction_sender(self, transaction_id: int, session):
+        tx = await session.get(Transaction, transaction_id)
+        if not tx:
+            logger.warning(f"Transaction id={transaction_id} not found")
+            raise NotFoundError("Транзакция не найдена")
+        return tx
+
 
     @connection
     async def get_transactions_for_wallet(self, wallet_id: int, session, limit=30, offset=0):

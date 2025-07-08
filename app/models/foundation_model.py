@@ -6,5 +6,3 @@ from app.models.sphere_model import foundation_spheres
 class Foundation(LegalEntityBase):
     __tablename__ = "foundations"
     spheres = relationship("Sphere", secondary=foundation_spheres, back_populates="foundations")
-
-    # Можно добавить специфические поля для фондов тут
