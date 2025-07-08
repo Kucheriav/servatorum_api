@@ -12,15 +12,7 @@ from app.scripts_utlis.bot_sms_code_sender import start_bot
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # try:
-    #     async with engine.begin() as conn:
-    #         await conn.run_sync(Base.metadata.create_all)
-    # except Exception as e:
-    #     print(f'DB error: {e}')
-    #     raise
-    logger.info("hello from lifespan")
     bot_task = asyncio.create_task(start_bot())
-    logger.info("finishing lifespan")
     yield
     await engine.dispose()
     bot_task.cancel()

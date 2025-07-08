@@ -35,7 +35,7 @@ class NewUserResponse(BaseModel):
 
 class UserCreate(BaseModel):
     # login: str
-    password: str
+    # password: str
     first_name: Optional[str] = None
     surname: Optional[str] = None
     last_name: Optional[str] = None

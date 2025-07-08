@@ -13,7 +13,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     # логина как такового нет
     # login = Column(String, nullable=False)
-    _password = Column(String, nullable=False)
+    # _password = Column(String, nullable=False)
     first_name = Column(String)
     surname = Column(String)
     last_name = Column(String)
@@ -29,21 +29,21 @@ class User(Base):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        # Проверяем наличие либо email, либо пароля
+        # Проверяем наличие либо email, либо телефона
         if not any([self.email, self.phone]):
             raise ValueError("Необходимо передать хотя бы email или номер телефона.")
 
-    @property
-    def password(self):
-        raise AttributeError("Нельзя напрямую получить значение пароля")
-
-    def set_password(self, password):
-        pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), settings.get_salt().encode('utf-8'), 100000)
-        self._password = binascii.hexlify(pwdhash).decode('utf-8')
-
-    def verify_password(self, password):
-        pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), settings.get_salt().encode('utf-8'), 100000)
-        return self._password == binascii.hexlify(pwdhash).decode('utf-8')
+    # @property
+    # def password(self):
+    #     raise AttributeError("Нельзя напрямую получить значение пароля")
+    #
+    # def set_password(self, password):
+    #     pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), settings.get_salt().encode('utf-8'), 100000)
+    #     self._password = binascii.hexlify(pwdhash).decode('utf-8')
+    #
+    # def verify_password(self, password):
+    #     pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), settings.get_salt().encode('utf-8'), 100000)
+    #     return self._password == binascii.hexlify(pwdhash).decode('utf-8')
 
     @validates('phone_number')
     def validate_phone_number(self, phone_number):

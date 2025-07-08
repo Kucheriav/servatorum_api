@@ -189,7 +189,7 @@ class UserCRUD:
                 role=user.role,
                 spheres=sphere_objects
             )
-            new_user.set_password(user.password)
+            # new_user.set_password(user.password)
             session.add(new_user)
             await session.commit()
             await session.refresh(new_user)  # Refresh to get the generated ID

@@ -5,7 +5,6 @@ from datetime import datetime
 from app.config import settings
 import logging
 
-# Create a logger specific to this module
 logger = logging.getLogger("app.database")
 
 DATABASE_URL = settings.get_db_url()
@@ -14,8 +13,6 @@ engine = create_async_engine(url=DATABASE_URL)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 
-
-# if problems with args, kwargs, multiple session arg etc., check that all params are key-word args in crud
 def connection(method):
     async def wrapper(*args, **kwargs):
         logger.info(f"Opening a new database session for method: {method.__name__}")
