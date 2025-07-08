@@ -15,16 +15,16 @@ class CompanyCRUD:
         logger.info("Creating a new company")
         try:
             new_company = Company(
+                administrator_name = company.administrator_name,
+                administrator_surname = company.administrator_surname,
+                administrator_lastname = company.administrator_lastname,
                 name=company.name,
                 description=company.description,
-                logo=company.logo,
-                inn=company.inn,
-                bik=company.bik,
-                cor_account=company.cor_account,
                 address=company.address,
-                address_reg=company.address_reg,
                 phone=company.phone,
-                phone_helpdesk=company.phone_helpdesk,
+                email=company.email,
+                site=company.site,
+                logo = company.logo
             )
             session.add(new_company)
             await session.commit()
@@ -38,14 +38,12 @@ class CompanyCRUD:
                 account_name=details.account_name,
                 bank_account=details.bank_account,
                 cor_account=details.cor_account,
-                bik=details.bik,
+                bik=details.bik
             )
             session.add(new_details)
             await session.commit()
             await session.refresh(new_details)
-
-
-
+            logger.info(f"Added account details for company: {new_company.id}")
             new_relation = UserEntityRelation(
                 user_id=user_id,
                 entity_id=new_company.id,

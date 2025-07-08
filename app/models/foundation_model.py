@@ -13,7 +13,7 @@ class Foundation(LegalEntityBase):
 class FoundationAccountDetails(Base):
     __tablename__ = "foundation_account_details"
     id = Column(Integer, primary_key=True, index=True)
-    foundation = Column(Integer, ForeignKey('foundations.id'), unique=False)
+    foundation = Column(Integer, ForeignKey('foundations.id'), unique=False, ondelete='CASCADE')
     inn = Column(String, unique=True)
     kpp = Column(String)
     account_name = Column(String)

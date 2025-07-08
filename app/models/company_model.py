@@ -11,7 +11,7 @@ class Company(LegalEntityBase):
 class CompanyAccountDetails(Base):
     __tablename__ = "company_account_details"
     id = Column(Integer, primary_key=True, index=True)
-    company = Column(Integer, ForeignKey('companies.id'), unique=True)
+    company = Column(Integer, ForeignKey('companies.id'), unique=True, ondelete='CASCADE')
     inn = Column(String, unique=True)
     kpp = Column(String)
     account_name = Column(String)
