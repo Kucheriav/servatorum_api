@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.crud.transaction_crud import TransactionCRUD
 from app.schemas.transaction_schema import *
 from app.errors_custom_types import *
-from app.scripts_utlis.dependencies import get_current_user, get_current_admin
+from app.scripts_utlis.dependencies import get_current_user, get_current_admin, transaction_users_or_admin
 import logging
 
 router = APIRouter()
@@ -36,7 +36,7 @@ async def create_transaction(transaction: TransactionCreate, current_user=Depend
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_transaction/{transaction_id}", response_model=TransactionResponse)
-async def get_transaction(transaction_id: int, current_actor=Depends(owner_or_admin)):
+async def get_transaction(transaction_id: int, current_actor=Depends(transaction_users_or_admin)):
     logger.info(f"{current_actor.phone} requests transaction with ID: {transaction_id}")
     try:
         tx = await transaction_crud.get_transaction(transaction_id=transaction_id)
@@ -50,7 +50,7 @@ async def get_transaction(transaction_id: int, current_actor=Depends(owner_or_ad
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_transactions_for_wallet/{wallet_id}", response_model=List[TransactionResponse])
-async def get_transactions_for_wallet(wallet_id: int, limit: int = 30, offset: int = 0, current_actor=Depends(owner_or_admin)):
+async def get_transactions_for_wallet(wallet_id: int, limit: int = 30, offset: int = 0, current_actor=Depends(transaction_users_or_admin)):
     logger.info(f"{current_actor.phone} requests transactions for wallet with ID: {wallet_id}")
     try:
         txs = await transaction_crud.get_transactions_for_wallet(wallet_id=wallet_id, limit=limit, offset=offset)

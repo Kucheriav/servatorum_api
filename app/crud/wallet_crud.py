@@ -1,7 +1,7 @@
 from sqlalchemy.future import select
 import logging
 from app.database import connection
-from app.models.wallet_model import Wallet
+from app.models import Wallet, User
 from app.schemas.wallet_schema import WalletCreate, WalletResponse, WalletPatch
 from app.errors_custom_types import *
 
@@ -50,6 +50,41 @@ class WalletCRUD:
         except Exception as e:
             logger.error(f"Error occurred while fetching wallet {owner_type} by owner ID {owner_id}", exc_info=True)
             raise
+
+    @connection
+    async def get_user_by_wallet_id(self, wallet_id: int, session):
+        wallet = await session.get(Wallet, wallet_id)
+        if not wallet:
+            raise NotFoundError('Wallet', wallet_id)
+
+        from app.crud.user_crud import UserCRUD
+        from app.crud.fundraising_crud import FundraisingCRUD
+        user_crud = UserCRUD()
+        fundraising_crud = FundraisingCRUD()
+
+        if wallet.owner_type == 'user':
+            user = await session.get(User, wallet.owner_id)
+            if not user:
+                raise NotFoundError('User', wallet.owner_id)
+            return user
+        elif wallet.owner_type == 'company':
+            user = await user_crud.get_user_by_entity(wallet.owner_id, 'company')
+            if not user:
+                raise NotFoundError('USER_FOR_COMPANY', wallet.owner_id)
+            return user
+        elif wallet.owner_type == 'foundation':
+            user = await user_crud.get_user_by_entity(wallet.owner_id, 'foundation')
+            if not user:
+                raise NotFoundError('USER_FOR_FOUNDATION', wallet.owner_id)
+            return user
+        elif wallet.owner_type == 'fundraising':
+            user = await fundraising_crud.get_fundraising_owner(wallet.owner_id)
+            if not user:
+                raise NotFoundError('USER_FOR_FUNDRAISING', wallet.owner_id)
+            return user
+        else:
+            raise NotFoundError('Unknown owner_type', wallet.owner_type)
+
 
     @connection
     async def patch_wallet(self, wallet_id: int, session, params):

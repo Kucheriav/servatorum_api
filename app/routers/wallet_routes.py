@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.crud.wallet_crud import WalletCRUD
 from app.schemas.wallet_schema import *
 from app.errors_custom_types import *
-from app.scripts_utlis.dependencies import get_current_user, owner_or_admin
+from app.scripts_utlis.dependencies import get_current_user, get_current_admin, wallet_owner_or_admin
 import logging
 
 router = APIRouter()
@@ -34,7 +34,7 @@ async def create_wallet(wallet: WalletCreate, current_user=Depends(get_current_u
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_wallet/{wallet_id}", response_model=WalletResponse)
-async def get_wallet(wallet_id: int, current_actor=Depends(owner_or_admin)):
+async def get_wallet(wallet_id: int, current_actor=Depends(wallet_owner_or_admin)):
     logger.info(f"{current_actor.phone} requests wallet with ID: {wallet_id}")
     try:
         wallet = await wallet_crud.get_wallet(wallet_id=wallet_id)
@@ -48,7 +48,7 @@ async def get_wallet(wallet_id: int, current_actor=Depends(owner_or_admin)):
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.get("/get_wallet_by_owner", response_model=WalletResponse)
-async def get_wallet_by_owner(owner_type: str, owner_id: int, current_actor=Depends(owner_or_admin)):
+async def get_wallet_by_owner(owner_type: str, owner_id: int, current_actor=Depends(wallet_owner_or_admin)):
     logger.info(f"{current_actor.phone} requests wallet with owner_type={owner_type}, owner_id={owner_id}")
     try:
         wallet = await wallet_crud.get_wallet_by_owner(owner_type=owner_type, owner_id=owner_id)
@@ -62,7 +62,7 @@ async def get_wallet_by_owner(owner_type: str, owner_id: int, current_actor=Depe
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.patch("/patch_wallet/{wallet_id}", response_model=WalletResponse)
-async def patch_wallet(wallet_id: int, wallet_params_to_patch: WalletPatch, current_actor=Depends(owner_or_admin)):
+async def patch_wallet(wallet_id: int, wallet_params_to_patch: WalletPatch, current_actor=Depends(get_current_admin)):
     logger.info(f"{current_actor.phone} patches wallet: {wallet_id}")
     try:
         patched_wallet = await wallet_crud.patch_wallet(wallet_id=wallet_id, params=wallet_params_to_patch.params)
@@ -76,7 +76,7 @@ async def patch_wallet(wallet_id: int, wallet_params_to_patch: WalletPatch, curr
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @router.delete("/delete_wallet/{wallet_id}")
-async def delete_wallet(wallet_id: int, current_actor=Depends(owner_or_admin)):
+async def delete_wallet(wallet_id: int, current_actor=Depends(get_current_admin)):
     logger.info(f"{current_actor.phone} deletes wallet: {wallet_id}")
     try:
         await wallet_crud.delete_wallet(wallet_id=wallet_id)
