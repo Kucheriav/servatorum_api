@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Email
 from sqlalchemy import CheckConstraint
 from app.database import Base
 
@@ -8,16 +8,16 @@ from app.database import Base
 class LegalEntityBase(Base):
     __abstract__ = True
     id = Column(Integer, primary_key=True, index=True)
+    administrator_name = Column(String)
+    administrator_surname = Column(String)
+    administrator_lastname = Column(String)
     name = Column(String)
     description = Column(String)
-    logo = Column(String)
-    inn = Column(String, unique=True)
-    bik = Column(String)
-    cor_account = Column(String)
     address = Column(String)
-    address_reg = Column(String)
     phone = Column(String)
-    phone_helpdesk = Column(String)
+    email = Column(Email)
+    site = Column(String)
+    logo = Column(String)
 
     __table_args__ = (
         CheckConstraint("inn ~ '^[0-9]{10}$'", name='check_inn'),
