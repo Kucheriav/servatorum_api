@@ -1,11 +1,16 @@
-from app.schemas.legal_entity_schema import *
+from typing import Optional
+from app.schemas.legal_entity_schema import (LegalEntityCreate, LegalEntityResponse, LegalEntityPatch,
+                                             LegalEntityAccountDetailsCreate, LegalEntityAccountDetailsPatch)
 
 
 class CompanyCreate(LegalEntityCreate):
-    pass
+    account_details: LegalEntityAccountDetailsCreate
+
+class CompanyAccountDetailsResponse(LegalEntityAccountDetailsCreate):
+    id: int
 
 class CompanyResponse(LegalEntityResponse):
-    pass
+    account_details: CompanyAccountDetailsResponse
 
 class CompanyPatch(LegalEntityPatch):
-    pass
+    account_details: Optional[LegalEntityAccountDetailsPatch] = None

@@ -1,7 +1,7 @@
 import logging
 from app.database import connection
 from app.models.user_model import UserEntityRelation
-from app.models.company_model import Company
+from app.models.company_model import Company, CompanyAccountDetails
 from app.schemas.company_schema import *
 from app.errors_custom_types import *
 from sqlalchemy.exc import IntegrityError
@@ -30,6 +30,22 @@ class CompanyCRUD:
             await session.commit()
             await session.refresh(new_company)
             logger.info(f"Company created successfully with ID: {new_company.id}")
+            details = company.account_details
+            new_details = CompanyAccountDetails(
+                company=new_company.id,
+                inn=details.inn,
+                kpp=details.kpp,
+                account_name=details.account_name,
+                bank_account=details.bank_account,
+                cor_account=details.cor_account,
+                bik=details.bik,
+            )
+            session.add(new_details)
+            await session.commit()
+            await session.refresh(new_details)
+
+
+
             new_relation = UserEntityRelation(
                 user_id=user_id,
                 entity_id=new_company.id,
