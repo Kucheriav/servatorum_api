@@ -17,7 +17,7 @@ import jwt
 logger = logging.getLogger("app.user_crud")
 CODE_TTL_MINUTES = 5
 MAX_ATTEMPTS = 5
-
+FORBIDDEN_FIELDS = {"id", "created_at", "updated_at"}
 
 def user_to_schema(user: User) -> UserResponse:
     return UserResponse(
@@ -259,6 +259,9 @@ class UserCRUD:
             if user_to_patch:
                 for key, value in params.params.items():
                     if hasattr(user_to_patch, key):
+                        if key in FORBIDDEN_FIELDS:
+                            logger.warning(f"Attempt to patch forbidden field {key} for User ID {user_id}")
+                            continue
                         setattr(user_to_patch, key, value)
                         logger.debug(f"Updated field {key} to {value} for user ID {user_id}")
                     else:

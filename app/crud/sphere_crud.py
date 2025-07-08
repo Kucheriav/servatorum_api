@@ -7,6 +7,7 @@ from app.errors_custom_types import NotFoundError
 from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger("app.sphere_crud")
+FORBIDDEN_FIELDS = {"id", "created_at", "updated_at"}
 
 class SphereCRUD:
     @connection
@@ -45,6 +46,9 @@ class SphereCRUD:
             logger.warning(f"Sphere id={sphere_id} not found for patch")
             raise NotFoundError("Сфера", sphere_id)
         for key, value in patch.model_dump(exclude_unset=True).items():
+            if key in FORBIDDEN_FIELDS:
+                logger.warning(f"Attempt to patch forbidden field {key} for Sphere ID {sphere_id}")
+                continue
             setattr(sphere, key, value)
         await session.commit()
         await session.refresh(sphere)

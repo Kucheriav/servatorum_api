@@ -8,6 +8,7 @@ from app.errors_custom_types import *
 
 logger = logging.getLogger("app.transaction_crud")
 
+
 class TransactionCRUD:
     @connection
     async def create_transaction(self, tx: TransactionCreate, session):

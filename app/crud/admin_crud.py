@@ -16,7 +16,7 @@ import logging
 logger = logging.getLogger("app.admin_crud")
 CODE_TTL_MINUTES = 5
 MAX_ATTEMPTS = 5
-
+FORBIDDEN_FIELDS = {"id", "created_at", "updated_at"}
 
 class AdminCRUD:
     @connection
@@ -193,6 +193,9 @@ class AdminCRUD:
             if admin_to_patch:
                 for key, value in params.params.items():
                     if hasattr(admin_to_patch, key):
+                        if key in FORBIDDEN_FIELDS:
+                            logger.warning(f"Attempt to patch forbidden field {key} for Admin ID {admin_id}")
+                            continue
                         setattr(admin_to_patch, key, value)
                         logger.debug(f"Updated field {key} to {value} for admin ID {admin_id}")
                     else:

@@ -6,6 +6,7 @@ from app.schemas.wallet_schema import WalletCreate, WalletResponse, WalletPatch
 from app.errors_custom_types import *
 
 logger = logging.getLogger("app.wallet_crud")
+FORBIDDEN_FIELDS = {"id", "created_at", "updated_at"}
 
 class WalletCRUD:
     @connection
@@ -95,6 +96,9 @@ class WalletCRUD:
                 logger.warning(f"Wallet id={wallet_id} not found for patching")
                 raise NotFoundError('Wallet', wallet_id)
             for key, value in params.items():
+                if key in FORBIDDEN_FIELDS:
+                    logger.warning(f"Attempt to patch forbidden field {key} for Wallet ID {wallet_id}")
+                    continue
                 setattr(wallet, key, value)
             await session.flush()
             await session.refresh(wallet)

@@ -8,7 +8,7 @@ from app.schemas.fundraising_schema import *
 from app.errors_custom_types import *
 
 logger = logging.getLogger("app.fundraising_crud")
-
+FORBIDDEN_FIELDS = {"id", "created_at", "updated_at", 'owner_id'}
 
 class FundraisingCRUD:
     @connection
@@ -20,7 +20,8 @@ class FundraisingCRUD:
                 description=fundraising.description,
                 goal_amount=fundraising.goal_amount,
                 start_date=fundraising.start_date,
-                finish_date=fundraising.finish_date
+                finish_date=fundraising.finish_date,
+                owner_id=fundraising.owner_id
             )
             session.add(new_fundraising)
             await session.commit()
@@ -68,6 +69,9 @@ class FundraisingCRUD:
             if fundraising_to_patch:
                 for key, value in params.params.items():
                     if hasattr(fundraising_to_patch, key):
+                        if key in FORBIDDEN_FIELDS:
+                            logger.warning(f"Attempt to patch forbidden field {key} for Fundraising ID {fundraising_id}")
+                            continue
                         setattr(fundraising_to_patch, key, value)
                         logger.debug(f"Updated field {key} to {value} for fundraising ID {fundraising_id}")
                     else:

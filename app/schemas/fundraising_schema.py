@@ -9,6 +9,7 @@ class FundraisingCreate(BaseModel):
     raised_amount: float
     start_date: datetime.date
     finish_date: datetime.date
+    owner_id: int
 
     class Config:
         arbitrary_types_allowed = True
@@ -35,6 +36,7 @@ class FundraisingResponce(BaseModel):
     raised_amount: float
     start_date: datetime.date
     finish_date: datetime.date
+    owner_id: int
 
     class Config:
         arbitrary_types_allowed = True

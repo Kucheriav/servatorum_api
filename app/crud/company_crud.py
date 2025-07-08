@@ -10,7 +10,7 @@ from app.errors_custom_types import *
 from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger("app.company_crud")
-
+FORBIDDEN_FIELDS = {"id", "created_at", "updated_at"}
 
 class CompanyCRUD:
     @connection
@@ -130,6 +130,9 @@ class CompanyCRUD:
             # patch company fields
             for key, value in params.params.items():
                 if hasattr(company_to_patch, key):
+                    if key in FORBIDDEN_FIELDS:
+                        logger.warning(f"Attempt to patch forbidden field {key} for Company ID {company_id}")
+                        continue
                     setattr(company_to_patch, key, value)
                     logger.debug(f"Updated field {key} to {value} for Company ID {company_id}")
                 else:

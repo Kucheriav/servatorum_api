@@ -7,7 +7,7 @@ from app.schemas.news_schema import *
 from app.errors_custom_types import *
 
 logger = logging.getLogger("app.news_crud")
-
+FORBIDDEN_FIELDS = {"id", "created_at", "updated_at"}
 
 class NewsCRUD:
     @connection
@@ -78,6 +78,9 @@ class NewsCRUD:
             if news_to_patch:
                 for key, value in params.params.items():
                     if hasattr(news_to_patch, key):
+                        if key in FORBIDDEN_FIELDS:
+                            logger.warning(f"Attempt to patch forbidden field {key} for News ID {news_id}")
+                            continue
                         setattr(news_to_patch, key, value)
                         logger.debug(f"Updated field {key} to {value} for news ID {news_id}")
                     else:
