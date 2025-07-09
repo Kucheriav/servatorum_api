@@ -44,7 +44,7 @@ class AdminToken(Base):
     token = Column(String)
     refresh_token = Column(String)
     valid_before = Column(DateTime)
-    admin_id = Column(Integer, ForeignKey('admin.id'))
+    admin_id = Column(Integer, ForeignKey('admins.id'))
 
 
 class AdminVerificationCode(Base):
