@@ -8,9 +8,9 @@ services:
     volumes:
       - pg_wal_archive:/var/lib/postgresql/wal_archive
 
-  db:
+  master_db:
     image: postgres:15
-    container_name: servatorum_db
+    container_name: master_db
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -36,7 +36,7 @@ services:
 
   db_replica:
     image: postgres:15
-    container_name: servatorum_replica
+    container_name: db_replica
     environment:
       POSTGRES_USER: ${REPLICATOR_USER}
       POSTGRES_PASSWORD: ${REPLICATOR_PASSWORD}
@@ -53,7 +53,7 @@ services:
     networks:
       - app_network
     depends_on:
-      - db
+      - master_db
       - wal_archive_init
 
   api:
@@ -70,7 +70,7 @@ services:
     networks:
       - app_network
     depends_on:
-      - db
+      - master_db
 
 networks:
   app_network:
