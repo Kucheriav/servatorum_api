@@ -4,7 +4,7 @@ from pydantic import ValidationError
 from sqlalchemy import exc
 from app.crud.user_crud import UserCRUD
 from app.schemas.user_schema import *
-from app.scripts_utlis.dependencies import get_current_user, owner_or_admin
+from app.scripts_utlis.dependencies import get_current_user, user_owner_or_admin
 import logging
 from app.scripts_utlis.bot_sms_code_sender import bot
 
@@ -90,7 +90,7 @@ async def get_user(user_id: int):
 
 
 @router.patch("/patch_user/{user_id}", response_model=UserResponse)
-async def patch_user(user_id: int, user_params_to_patch: UserPatch, current_actor=Depends(owner_or_admin)):
+async def patch_user(user_id: int, user_params_to_patch: UserPatch, current_actor=Depends(user_owner_or_admin)):
     logger.info(f"{current_actor.phone} patches user with ID: {user_id}")
     try:
         patched_user = await user_crud.patch_user(user_id=user_id, params=user_params_to_patch)
@@ -105,7 +105,7 @@ async def patch_user(user_id: int, user_params_to_patch: UserPatch, current_acto
 
 
 @router.delete("/delete_user/{user_id}")
-async def delete_user(user_id: int, current_actor=Depends(owner_or_admin)):
+async def delete_user(user_id: int, current_actor=Depends(user_owner_or_admin)):
     logger.info(f"{current_actor.phone} deletes user with ID: {user_id}")
     try:
         await user_crud.delete_user(user_id=user_id)
