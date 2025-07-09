@@ -59,13 +59,13 @@ class UserCreate(BaseModel):
         return v
 
 
-    @field_validator('password')
-    @classmethod
-    def password_min_length(cls, v):
-        logger.info(f"Validating password: {v}")
-        if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters long')
-        return v
+    # @field_validator('password')
+    # @classmethod
+    # def password_min_length(cls, v):
+    #     logger.info(f"Validating password: {v}")
+    #     if len(v) < 8:
+    #         raise ValueError('Password must be at least 8 characters long')
+    #     return v
 
     @model_validator(mode='after')
     def check_email_or_phone(self):
@@ -103,8 +103,8 @@ class UserPatch(BaseModel):
         for key in v:
             if key == 'phone':
                 UserCreate.phone_format(v[key])
-            elif key == 'password':
-                UserCreate.password_min_length(v[key])
+            # elif key == 'password':
+            #     UserCreate.password_min_length(v[key])
             elif key == 'date_of_birth':
                 try:
                     temp = datetime.datetime.strptime(v[key], '%Y-%m-%d').date()
