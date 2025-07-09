@@ -11,7 +11,7 @@ class Fundraising(Base):
     raised_amount = Column(Float)
     start_date = Column(Date)
     finish_date = Column(Date)
-    owner_id = Column(Integer, ForeignKey('users.id'), ondelete='CASCADE')
+    owner_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 
     __table_args__ = (
         CheckConstraint('start_date >= CURRENT_DATE'),
@@ -22,7 +22,7 @@ class Fundraising(Base):
 class FundraisingFiles(Base):
     __tablename__ = "fundraising_files"
     id = Column(Integer, primary_key=True, index=True)
-    fundraise_id = Column(Integer, ForeignKey('users.id'), ondelete='CASCADE')
+    fundraise_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
     name = Column(String)
     path = Column(String)
     file_type = Column(Enum("doc", "photo", name="file_type_enum"))
