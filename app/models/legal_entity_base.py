@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Email
+from sqlalchemy import Column, Integer, String
 from sqlalchemy import CheckConstraint
 from app.database import Base
 
@@ -15,7 +15,7 @@ class LegalEntityBase(Base):
     description = Column(String)
     address = Column(String)
     phone = Column(String)
-    email = Column(Email)
+    email = Column(String)
     site = Column(String)
     logo = Column(String)
 
