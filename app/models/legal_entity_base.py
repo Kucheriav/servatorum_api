@@ -20,8 +20,5 @@ class LegalEntityBase(Base):
     logo = Column(String)
 
     __table_args__ = (
-        CheckConstraint("inn ~ '^[0-9]{10}$'", name='check_inn'),
-        CheckConstraint('length(cor_account) = 20', name='check_cor_account'),
         CheckConstraint("phone ~ '^7[0-9]{10}$'", name='check_phone'),
-        CheckConstraint("phone_helpdesk ~ '^7[0-9]{10}$'", name='check_phone_helpdesk')
     )
