@@ -211,10 +211,14 @@ class UserCRUD:
     async def get_user(self, user_id: int, session):
         logger.info(f"Fetching user with ID: {user_id}")
         try:
-            user = await session.get(User, user_id)
-            if user:
+            result = await session.execute(
+                select(User).options(selectinload(User.spheres)).where(User.id == user_id)
+            )
+            if result:
+                user_with_spheres = result.scalars().first()
+                user_schema = user_to_schema(user_with_spheres)
                 logger.info(f"User with ID {user_id} retrieved successfully")
-                return user
+                return user_schema
             else:
                 logger.warning(f"User with ID {user_id} not found")
                 raise NotFoundError('User', user_id)
@@ -236,11 +240,15 @@ class UserCRUD:
             if not relation:
                 logger.warning(f"No user relation found for entity_id={entity_id}, entity_type='{entity_type}'")
                 raise NotFoundError('UserEntityRelation', f"{entity_type}:{entity_id}")
-            user = await session.get(User, relation.user_id)
-            if user:
+            result = await session.execute(
+                select(User).options(selectinload(User.spheres)).where(User.id == relation.user_id)
+            )
+            if result:
+                user_with_spheres = result.scalars().first()
+                user_schema = user_to_schema(user_with_spheres)
                 logger.info(
                     f"User with ID {relation.user_id} retrieved successfully for entity {entity_type}:{entity_id}")
-                return user
+                return user_schema
             else:
                 logger.warning(f"User with ID {relation.user_id} not found")
                 raise NotFoundError('User', relation.user_id)
@@ -255,7 +263,10 @@ class UserCRUD:
     @connection
     async def patch_user(self, user_id: int, session, params):
         try:
-            user_to_patch = await session.get(User, user_id)
+            result = await session.execute(
+                select(User).options(selectinload(User.spheres)).where(User.id == user_id)
+            )
+            user_to_patch = result.scalars().first()
             if user_to_patch:
                 for key, value in params.params.items():
                     if hasattr(user_to_patch, key):
@@ -269,8 +280,9 @@ class UserCRUD:
                         raise UpdateError('User', user_id)
                 await session.commit()
                 await session.refresh(user_to_patch)
+                user_schema = user_to_schema(user_to_patch)
                 logger.info(f"User with ID {user_id} patched successfully")
-                return user_to_patch
+                return user_schema
             else:
                 logger.warning(f"User with ID {user_id} not found")
                 raise NotFoundError('User', user_id)
