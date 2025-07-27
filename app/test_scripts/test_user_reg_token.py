@@ -1,7 +1,7 @@
 import requests
 
-BASE_URL = "https://217.171.146.249/:8000"
-phone = "+71231231212"
+BASE_URL = "https://217.171.146.249:8000"
+phone = "71231231212"
 ROUTER_BRANCH = '/users'
 WORK_URL = BASE_URL + ROUTER_BRANCH
 print("Шаг 1: Запрос кода подтверждения")

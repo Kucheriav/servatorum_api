@@ -13,10 +13,10 @@ class RequestCodeSchema(BaseModel):
     @field_validator("phone")
     @classmethod
     def phone_format(cls, v):
-        # Ожидаем 7XXXXXXXXXX или +7XXXXXXXXXX
-        if not re.match(r"^7\d{10}$", v) and not re.match(r"^\+7\d{10}$", v):
-            raise ValueError("Номер должен быть в формате 7XXXXXXXXXX или +7XXXXXXXXXX")
-        return v.lstrip("+")
+        logger.info(f"Validating phone: {v}")
+        if not re.match(r'^7\d{10}$', v):
+            raise ValueError('Phone number must be "71234567890" like')
+        return v
 
 class VerifyCodeSchema(BaseModel):
     phone: str
@@ -25,9 +25,10 @@ class VerifyCodeSchema(BaseModel):
     @field_validator("phone")
     @classmethod
     def phone_format(cls, v):
-        if not re.match(r"^7\d{10}$", v) and not re.match(r"^\+7\d{10}$", v):
-            raise ValueError("Номер должен быть в формате 7XXXXXXXXXX или +7XXXXXXXXXX")
-        return v.lstrip("+")
+        logger.info(f"Validating phone: {v}")
+        if not re.match(r'^7\d{10}$', v):
+            raise ValueError('Phone number must be "71234567890" like')
+        return v
 
 class NewUserResponse(BaseModel):
     status: str
