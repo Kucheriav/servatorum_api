@@ -34,6 +34,7 @@ if data.get("is_new"):
         "surname": "Ivanovich",
         "last_name": "Ivanov",
         "phone": phone,
+        "role": "getting help"
     }
     create_resp = requests.post(f"{WORK_URL}/create_user", json=user_info, verify=False)
     print("Ответ:", create_resp.status_code, create_resp.json())

@@ -173,7 +173,7 @@ class UserCRUD:
             if not verif_code:
                 raise RegistrationError("Телефон не подтверждён или истёк код верификации.")
 
-            spheres = await session.execute(select(Sphere).where(Sphere.id.in_(user.spheres)))
+            spheres = await session.execute(select(Sphere).where(Sphere.id.in_(user.spheres or [])))
             sphere_objects = spheres.scalars().all()
             new_user = User(
                 first_name=user.first_name,
