@@ -3,7 +3,7 @@ from pydantic import ValidationError
 from sqlalchemy import exc
 from app.crud.fundraising_crud import FundraisingCRUD
 from app.schemas.fundraising_schema import *
-from app.scripts_utlis.dependencies import get_current_user, fundraising_owner_or_admin
+from app.scripts_utils.dependencies import get_current_user, fundraising_owner_or_admin
 import logging
 
 router = APIRouter()

@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.crud.company_crud import CompanyCRUD
 from app.schemas.company_schema import *
 from app.errors_custom_types import *
-from app.scripts_utlis.dependencies import get_current_user, company_owner_or_admin
+from app.scripts_utils.dependencies import get_current_user, company_owner_or_admin
 from app.models.user_model import User
 import logging
 

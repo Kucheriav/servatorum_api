@@ -3,7 +3,7 @@ from sqlalchemy.exc import IntegrityError
 from app.crud.transaction_crud import TransactionCRUD
 from app.schemas.transaction_schema import *
 from app.errors_custom_types import *
-from app.scripts_utlis.dependencies import get_current_user, get_current_admin, transaction_users_or_admin
+from app.scripts_utils.dependencies import get_current_user, get_current_admin, transaction_users_or_admin
 import logging
 
 router = APIRouter()

@@ -8,7 +8,7 @@ from app.database import engine, Base
 from app.routers import (user_routes, company_routes, foundation_routes, fundraising_routes,
                          news_routes, wallet_routes, transaction_routes, sphere_routes)
 
-from app.scripts_utlis.bot_sms_code_sender import start_bot
+from app.scripts_utils.bot_sms_code_sender import start_bot
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

@@ -5,7 +5,7 @@ from app.schemas.sphere_schema import SphereCreate, SphereResponse, SpherePatch
 from app.crud.sphere_crud import SphereCRUD
 from sqlalchemy.exc import IntegrityError
 from app.errors_custom_types import NotFoundError
-from app.scripts_utlis.dependencies import get_current_admin
+from app.scripts_utils.dependencies import get_current_admin
 import logging
 
 router = APIRouter()

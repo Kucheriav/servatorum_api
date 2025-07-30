@@ -4,9 +4,9 @@ from pydantic import ValidationError
 from sqlalchemy import exc
 from app.crud.user_crud import UserCRUD
 from app.schemas.user_schema import *
-from app.scripts_utlis.dependencies import get_current_user, user_owner_or_admin
+from app.scripts_utils.dependencies import get_current_user, user_owner_or_admin
 import logging
-from app.scripts_utlis.bot_sms_code_sender import bot
+from app.scripts_utils.bot_sms_code_sender import bot
 
 
 router = APIRouter()

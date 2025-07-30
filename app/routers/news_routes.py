@@ -3,7 +3,7 @@ from pydantic import ValidationError
 from sqlalchemy import exc
 from app.crud.news_crud import NewsCRUD
 from app.schemas.news_schema import *
-from app.scripts_utlis.dependencies import get_current_user, get_current_admin
+from app.scripts_utils.dependencies import get_current_user, get_current_admin
 import logging
 
 router = APIRouter()

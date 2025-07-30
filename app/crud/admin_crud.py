@@ -6,8 +6,7 @@ from app.models.chat_id_model import *
 from app.models.admin_model import *
 from app.schemas.admin_schema import AdminCreate
 from app.errors_custom_types import *
-from app.scripts_utlis.token_utils import *
-from app.scripts_utlis.jwt_utils import *
+from app.scripts_utils.jwt_utils import *
 from datetime import datetime, timedelta
 import random
 import logging
@@ -131,8 +130,8 @@ class AdminCRUD:
             raise NotFoundError('Refresh_token', refresh_token)
         elif token_obj[0].valid_before < datetime.now():
             raise RefreshTokenExpired('RefreshTokenExpired')
-        admin_id = token_obj[0].admin_id
-        new_access = generate_admin_access_token(admin_id)
+        admin = session.get(Admin, token_obj[0].admin_id)
+        new_access = generate_admin_access_token(admin.id, admin.is_superadmin)
         return new_access
 
     @connection

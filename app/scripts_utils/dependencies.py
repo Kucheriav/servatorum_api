@@ -1,6 +1,6 @@
 from fastapi import Request, HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
-from app.scripts_utlis.jwt_utils import *
+from app.scripts_utils.jwt_utils import *
 from app.crud.user_crud import UserCRUD
 from app.crud.admin_crud import AdminCRUD
 from app.crud.fundraising_crud import FundraisingCRUD

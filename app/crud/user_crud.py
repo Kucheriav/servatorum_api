@@ -7,8 +7,7 @@ from app.models.user_model import *
 from app.models.sphere_model import *
 from app.schemas.user_schema import UserCreate, UserResponse
 from app.errors_custom_types import *
-from app.scripts_utlis.token_utils import *
-from app.scripts_utlis.jwt_utils import *
+from app.scripts_utils.jwt_utils import *
 from datetime import datetime, timedelta
 import random
 import logging

@@ -5,9 +5,9 @@ from sqlalchemy import exc
 from app.crud.admin_crud import AdminCRUD
 from app.schemas.admin_schema import *
 from app.models.admin_model import *
-from app.scripts_utlis.dependencies import get_current_admin, superadmin_required
+from app.scripts_utils.dependencies import get_current_admin, superadmin_required
 import logging
-from app.scripts_utlis.bot_sms_code_sender import bot
+from app.scripts_utils.bot_sms_code_sender import bot
 
 
 router = APIRouter()
