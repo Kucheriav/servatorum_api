@@ -23,6 +23,8 @@ services:
       - ./docker/postgres-conf/my_postgresql.conf:/etc/postgresql/my_postgresql.conf:ro
       - ./docker/postgres-conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
       - pg_wal_archive:/var/lib/postgresql/wal_archive
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     command: postgres -c config_file=/etc/postgresql/my_postgresql.conf
     networks:
       - app_network
@@ -49,6 +51,8 @@ services:
       - ./docker/postgres-conf/my_postgresql.conf:/etc/postgresql/my_postgresql.conf:ro
       - ./docker/postgres-conf/pg_hba.conf:/etc/postgresql/pg_hba.conf:ro
       - pg_wal_archive:/var/lib/postgresql/wal_archive
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     command: postgres -c config_file=/etc/postgresql/my_postgresql.conf
     networks:
       - app_network
@@ -69,6 +73,8 @@ services:
       - .:/app
       - ./key.pem:/app/key.pem
       - ./cert.pem:/app/cert.pem
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     networks:
       - app_network
     depends_on:

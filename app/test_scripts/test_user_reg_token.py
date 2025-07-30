@@ -19,12 +19,6 @@ print("Ответ:", verify_resp.status_code, verify_resp.json())
 assert verify_resp.ok, "Ошибка при проверке кода"
 
 data = verify_resp.json()
-access_token = data.get("access_token")
-refresh_token = data.get("refresh_token")
-print("Полученный access_token:", access_token)
-print("Полученный refresh_token:", refresh_token)
-cookies = {"refresh_token": refresh_token}
-
 if data.get("is_new"):
     print("Шаг 3: Создание пользователя")
     user_info = {
@@ -40,8 +34,15 @@ if data.get("is_new"):
     print("Ответ:", create_resp.status_code, create_resp.json())
     assert create_resp.ok, "Ошибка при создании пользователя"
     user_id = create_resp.json()["id"]
+    access_token = create_resp.json().get("access_token")
+    refresh_token = create_resp.json().get("refresh_token")
 else:
+    access_token = data.get("access_token")
+    refresh_token = data.get("refresh_token")
     user_id = data["user"]["id"]
+print("Полученный access_token:", access_token)
+print("Полученный refresh_token:", refresh_token)
+cookies = {"refresh_token": refresh_token}
 
 # 5. Патчим пользователя (нужно предъявить токен)
 print("Шаг 4: PATCH пользователя")
