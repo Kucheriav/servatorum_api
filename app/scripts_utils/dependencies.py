@@ -68,8 +68,10 @@ async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme
 
 async def user_owner_or_admin(user_id: int,user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:
+        logger.info('admin')
         return {"admin": admin}
     if user is not None and user.id == user_id:
+        logger.info('user')
         return {"user": user}
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
