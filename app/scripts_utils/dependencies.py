@@ -68,11 +68,9 @@ async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme
 
 async def user_owner_or_admin(user_id: int,user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:
-        logger.info('admin')
-        return {"admin": admin}
+        return {"role": 'admin', 'current_actor': admin}
     if user is not None and user.id == user_id:
-        logger.info(f"user: {user.surname}")
-        return {"user": user}
+        return {"role": 'user', 'current_actor': user}
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Operation permitted only for owner or admin"
