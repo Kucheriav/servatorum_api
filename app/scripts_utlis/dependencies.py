@@ -49,7 +49,8 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
             headers={"X-New-Access-Token": refreshed}
         )
     except Exception as e:
-        logger.error(f"Token decode error: {e!r}")
+        import traceback
+        logger.error(f"Token decode error: {e!r}\n{traceback.format_exc()}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка проверки токена")
 
 async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme)):
