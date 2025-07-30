@@ -72,7 +72,7 @@ async def user_owner_or_admin(user_id: int,user: User = Depends(get_current_user
         return {"admin": admin}
     if user is not None and user.id == user_id:
         logger.info('user')
-        return {"user": user}
+        return {"user": user.surname}
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Operation permitted only for owner or admin"
