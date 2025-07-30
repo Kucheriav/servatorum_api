@@ -33,7 +33,7 @@ if data.get("is_new"):
     create_resp = requests.post(f"{WORK_URL}/create_user", json=user_info, verify=False)
     print("Ответ:", create_resp.status_code, create_resp.json())
     assert create_resp.ok, "Ошибка при создании пользователя"
-    user_id = create_resp.json()["id"]
+    user_id = create_resp.json()['user']["id"]
     access_token = create_resp.json().get("access_token")
     refresh_token = create_resp.json().get("refresh_token")
 else:

@@ -20,7 +20,7 @@ def generate_user_access_token(user_id: int, expires_minutes=USER_ACCESS_TOKEN_E
         "user_id": user_id,
         "exp": datetime.now() + timedelta(minutes=expires_minutes)
     }
-    logger.info(f'start gen token at {datetime.now()}')
+    logger.info(f'exp time token at {datetime.now() + timedelta(minutes=expires_minutes)}')
     token = jwt.encode(payload, settings.get_salt(), algorithm="HS256")
     return token
 
