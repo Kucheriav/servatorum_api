@@ -2,11 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Date, Bool
 from sqlalchemy.orm import validates, relationship
 from app.models.sphere_model import user_spheres
 from app.database import Base
-from app.config import settings
 import re
-import hashlib
-import binascii
-import datetime
 
 class User(Base):
     __tablename__ = "users"
@@ -55,7 +51,7 @@ class User(Base):
 class UserMeta(Base):
     __tablename__ = "user_meta"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
     prefer_help = Column(String)
     achieves = Column(String)
 
@@ -66,13 +62,13 @@ class UserToken(Base):
     access_token = Column(String)
     refresh_token = Column(String)
     valid_before = Column(DateTime)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
 
 
 class UserEntityRelation(Base):
     __tablename__ = "user_entity_relations"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
     entity_id = Column(Integer)  # id компании или фонда
     entity_type = Column(String(50))  # "company" или "foundation"
 
