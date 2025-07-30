@@ -93,8 +93,8 @@ async def get_user(user_id: int):
 
 @router.patch("/patch_user/{user_id}", response_model=UserResponse)
 async def patch_user(user_id: int, user_params_to_patch: UserPatch, current_actor=Depends(user_owner_or_admin)):
-    logger.info(type(current_actor))
-    logger.info(f"{current_actor.phone} patches user with ID: {user_id}")
+    cur_role = 'User' if current_actor.get('user', False) else 'Admin'
+    logger.info(f"{cur_role} {current_actor[cur_role].phone} patches user with ID: {user_id}")
     try:
         patched_user = await user_crud.patch_user(user_id=user_id, params=user_params_to_patch)
         logger.info(f"User with ID {user_id} patched successfully")
