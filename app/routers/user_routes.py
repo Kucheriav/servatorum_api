@@ -108,7 +108,7 @@ async def patch_user(user_id: int, user_params_to_patch: UserPatch, current_acto
 
 @router.delete("/delete_user/{user_id}")
 async def delete_user(user_id: int, current_actor=Depends(user_owner_or_admin)):
-    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone} patches user with ID: {user_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone} deletes user with ID: {user_id}")
     try:
         await user_crud.delete_user(user_id=user_id)
         logger.info(f"User with ID {user_id} deleted successfully")

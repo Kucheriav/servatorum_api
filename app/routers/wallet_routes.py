@@ -35,7 +35,7 @@ async def create_wallet(wallet: WalletCreate, current_user=Depends(get_current_u
 
 @router.get("/get_wallet/{wallet_id}", response_model=WalletResponse)
 async def get_wallet(wallet_id: int, current_actor=Depends(wallet_owner_or_admin)):
-    logger.info(f"{current_actor.phone} requests wallet with ID: {wallet_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone}  requests wallet with ID: {wallet_id}")
     try:
         wallet = await wallet_crud.get_wallet(wallet_id=wallet_id)
         logger.info(f"Кошелек с ID {wallet_id} успешно найден")
@@ -49,7 +49,7 @@ async def get_wallet(wallet_id: int, current_actor=Depends(wallet_owner_or_admin
 
 @router.get("/get_wallet_by_owner", response_model=WalletResponse)
 async def get_wallet_by_owner(owner_type: str, owner_id: int, current_actor=Depends(wallet_owner_or_admin)):
-    logger.info(f"{current_actor.phone} requests wallet with owner_type={owner_type}, owner_id={owner_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone}  requests wallet with owner_type={owner_type}, owner_id={owner_id}")
     try:
         wallet = await wallet_crud.get_wallet_by_owner(owner_type=owner_type, owner_id=owner_id)
         logger.info(f"Кошелек для {owner_type} с owner_id={owner_id} найден")

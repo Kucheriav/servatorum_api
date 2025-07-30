@@ -37,7 +37,7 @@ async def create_transaction(transaction: TransactionCreate, current_user=Depend
 
 @router.get("/get_transaction/{transaction_id}", response_model=TransactionResponse)
 async def get_transaction(transaction_id: int, current_actor=Depends(transaction_users_or_admin)):
-    logger.info(f"{current_actor.phone} requests transaction with ID: {transaction_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone}  requests transaction with ID: {transaction_id}")
     try:
         tx = await transaction_crud.get_transaction(transaction_id=transaction_id)
         logger.info(f"Транзакция с ID {transaction_id} найдена")
@@ -51,7 +51,7 @@ async def get_transaction(transaction_id: int, current_actor=Depends(transaction
 
 @router.get("/get_transactions_for_wallet/{wallet_id}", response_model=List[TransactionResponse])
 async def get_transactions_for_wallet(wallet_id: int, limit: int = 30, offset: int = 0, current_actor=Depends(transaction_users_or_admin)):
-    logger.info(f"{current_actor.phone} requests transactions for wallet with ID: {wallet_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone}  requests transactions for wallet with ID: {wallet_id}")
     try:
         txs = await transaction_crud.get_transactions_for_wallet(wallet_id=wallet_id, limit=limit, offset=offset)
         logger.info(f"Найдено {len(txs)} транзакций для кошелька ID {wallet_id}")
