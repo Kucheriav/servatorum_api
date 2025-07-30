@@ -20,13 +20,6 @@ transaction_crud = TransactionCRUD()
 logger = logging.getLogger("app.dependencies")
 
 async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)):
-    """
-    Dependency для защищённых роутов.
-    1. Проверяет access_token (JWT), достаёт user.
-    2. Если токен просрочен — пытается refresh через refresh_token (из куки).
-    3. Если всё неудачно — 401.
-    """
-    logger.info(f"Token : {token}")
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Нет access token")
     try:
@@ -35,8 +28,6 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         user = await user_crud.get_user(user_id)
         return user
     except jwt.ExpiredSignatureError:
-        # Попробуем refresh через refresh_token из куки
-        logger.warning(f"Token expired")
         refresh_token = request.cookies.get("refresh_token")
         if not refresh_token:
             raise HTTPException(status_code=401, detail="Refresh token отсутствует, нужна повторная авторизация")
@@ -50,9 +41,7 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
             headers={"X-New-Access-Token": refreshed}
         )
     except Exception as e:
-        import traceback
-        logger.error(f"Token decode error: {e!r}\n{traceback.format_exc()}")
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка проверки токена")
+        return None
 
 async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme)):
     if not token:
@@ -75,7 +64,7 @@ async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme
             headers={"X-New-Access-Token": refreshed}
         )
     except Exception:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка проверки токена")
+        return None
 
 async def user_owner_or_admin(user_id: int,user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:
