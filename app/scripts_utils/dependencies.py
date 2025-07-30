@@ -26,6 +26,7 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
     2. Если токен просрочен — пытается refresh через refresh_token (из куки).
     3. Если всё неудачно — 401.
     """
+    logger.info(f"Token : {token}")
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Нет access token")
     try:
