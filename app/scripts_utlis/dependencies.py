@@ -9,6 +9,7 @@ from app.crud.transaction_crud import TransactionCRUD
 from app.models.user_model import User
 from app.models.admin_model import Admin
 import jwt
+import logging
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 user_crud = UserCRUD()
@@ -16,7 +17,7 @@ admin_crud = AdminCRUD()
 wallet_crud = WalletCRUD()
 fundraising_crud = FundraisingCRUD()
 transaction_crud = TransactionCRUD()
-
+logger = logging.getLogger("app.dependencies")
 
 async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)):
     """
@@ -34,6 +35,7 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         return user
     except jwt.ExpiredSignatureError:
         # Попробуем refresh через refresh_token из куки
+        logger.warning(f"Token expired")
         refresh_token = request.cookies.get("refresh_token")
         if not refresh_token:
             raise HTTPException(status_code=401, detail="Refresh token отсутствует, нужна повторная авторизация")
@@ -46,7 +48,8 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
             detail="Access token обновлён, используйте новый токен",
             headers={"X-New-Access-Token": refreshed}
         )
-    except Exception:
+    except Exception as e:
+        logger.error(f"Token decode error: {e!r}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ошибка проверки токена")
 
 async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme)):

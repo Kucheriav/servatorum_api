@@ -23,7 +23,7 @@ access_token = data.get("access_token")
 refresh_token = data.get("refresh_token")
 print("Полученный access_token:", access_token)
 print("Полученный refresh_token:", refresh_token)
-
+cookies = {"refresh_token": refresh_token}
 
 if data.get("is_new"):
     print("Шаг 3: Создание пользователя")
@@ -39,9 +39,9 @@ if data.get("is_new"):
     create_resp = requests.post(f"{WORK_URL}/create_user", json=user_info, verify=False)
     print("Ответ:", create_resp.status_code, create_resp.json())
     assert create_resp.ok, "Ошибка при создании пользователя"
-    user_id = create_resp.json()["user_id"]
+    user_id = create_resp.json()["id"]
 else:
-    user_id = data["user"]["user_id"]
+    user_id = data["user"]["id"]
 
 # 5. Патчим пользователя (нужно предъявить токен)
 print("Шаг 4: PATCH пользователя")
@@ -49,5 +49,5 @@ patch_payload = {
     "params": {"city": "Москва"}
 }
 headers = {"Authorization": f"Bearer {access_token}"}
-patch_resp = requests.patch(f"{WORK_URL}/patch_user/{user_id}", json=patch_payload, headers=headers, verify=False)
+patch_resp = requests.patch(f"{WORK_URL}/patch_user/{user_id}", json=patch_payload, headers=headers, cookies=cookies, verify=False)
 print("Ответ:", patch_resp.status_code, patch_resp.json())
