@@ -56,15 +56,38 @@ async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme
         logger.error(f"Неизвестная ошибка в get_current_user: {e}")
         raise HTTPException(status_code=500, detail="Ошибка сервера авторизации")
 
-async def user_owner_or_admin(user_id: int,user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
-    if admin is not None:
-        return {"role": 'admin', 'current_actor': admin}
-    if user is not None and user.id == user_id:
-        return {"role": 'user', 'current_actor': user}
-    raise HTTPException(
-        status_code=status.HTTP_403_FORBIDDEN,
-        detail="Operation permitted only for owner or admin"
-    )
+
+async def user_owner_or_admin(request: Request, token: str):
+    try:
+        payload = decode_access_token(token)
+        user_id = payload.get("user_id")
+        admin_id = payload.get("admin_id")
+        if not user_id and not admin_id:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Token does not contain valid user or admin identifier.")
+        if admin_id:
+            admin = await admin_crud.get_admin(admin_id)
+            if admin is None:
+                logger.warning(f"Admin not found for id {admin_id}")
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid admin credentials.")
+            return {"role": 'admin', 'current_actor': admin}
+
+        elif user_id:
+            user = await user_crud.get_user(user_id)
+            if user is None:
+                logger.warning(f"User not found for id {user_id}")
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user credentials.")
+            return {"role": 'user', 'current_actor': user}
+        else:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unknown role in the token.")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Access token expired. Try to refresh")
+    except (jwt.DecodeError, KeyError) as e:
+        logger.warning(f"Invalid access token: {e}")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Некорректный access token")
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка в user_owner_or_admin: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Ошибка сервера авторизации")
 
 async def company_owner_or_admin(company_id: int, current_user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:

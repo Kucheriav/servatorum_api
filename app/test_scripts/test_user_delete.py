@@ -29,6 +29,7 @@ if patch_resp.status_code == 401:
     assert refresh_resp.ok, "Ошибка обновления токена"
     access_token = refresh_resp.json().get("access_token")
     headers = {"Authorization": f"Bearer {access_token}"}
+
     patch_resp = requests.patch(f"{WORK_URL}/patch_user/{user_id}", json=patch_payload, headers=headers, verify=False)
     print("Ответ:", patch_resp.status_code, patch_resp.json())
     assert patch_resp.ok, "Токен не получилось обновить"
