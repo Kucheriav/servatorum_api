@@ -17,7 +17,7 @@ assert resp.ok, "Ошибка при запросе пользователя"
 
 
 print("Шаг 2: PATCH пользователя")
-patch_payload = {"params": {"city": "КККККК"}}
+patch_payload = {"params": {"city": "ФФФФ"}}
 headers = {"Authorization": f"Bearer {access_token}"}
 patch_resp = requests.patch(f"{WORK_URL}/patch_user/{user_id}", json=patch_payload, headers=headers, verify=False)
 print("Ответ:", patch_resp.status_code, patch_resp.json())
@@ -29,11 +29,11 @@ if patch_resp.status_code == 401:
     assert refresh_resp.ok, "Ошибка обновления токена"
     access_token = refresh_resp.json().get("access_token")
     headers = {"Authorization": f"Bearer {access_token}"}
-
     patch_resp = requests.patch(f"{WORK_URL}/patch_user/{user_id}", json=patch_payload, headers=headers, verify=False)
     print("Ответ:", patch_resp.status_code, patch_resp.json())
     assert patch_resp.ok, "Токен не получилось обновить"
 
 
 print("Шаг 3: DELETE пользователя")
-
+delete_resp = requests.delete(f"{WORK_URL}/delete_user/{user_id}", headers=headers, verify=False)
+print("Ответ:", patch_resp.status_code, patch_resp.json())

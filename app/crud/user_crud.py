@@ -137,7 +137,7 @@ class UserCRUD:
         await session.commit()
         refresh_token = generate_refresh_token()
         valid_before = get_refresh_token_expiry()
-        user_token = UserToken(access_token=None, refresh_token=refresh_token, valid_before=valid_before, user_id=user_id)
+        user_token = UserToken(refresh_token=refresh_token, valid_before=valid_before, user_id=user_id)
         session.add(user_token)
         await session.commit()
         await session.refresh(user_token)
