@@ -57,7 +57,7 @@ async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme
         raise HTTPException(status_code=500, detail="Ошибка сервера авторизации")
 
 
-async def user_owner_or_admin(request: Request, token: str):
+async def user_owner_or_admin(request: Request, token: str = Depends(oauth2_scheme)):
     try:
         payload = decode_access_token(token)
         user_id = payload.get("user_id")
