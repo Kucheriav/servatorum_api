@@ -20,51 +20,41 @@ transaction_crud = TransactionCRUD()
 logger = logging.getLogger("app.dependencies")
 
 async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)):
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Нет access token")
     try:
         payload = decode_access_token(token)
         user_id = payload["user_id"]
         user = await user_crud.get_user(user_id)
+        if user is None:
+            logger.warning(f"User not found for id {user_id}")
+            return None
         return user
     except jwt.ExpiredSignatureError:
-        refresh_token = request.cookies.get("refresh_token")
-        if not refresh_token:
-            raise HTTPException(status_code=401, detail="Refresh token отсутствует, нужна повторная авторизация")
-        refreshed = await user_crud.refresh_access_token(refresh_token)
-        if refreshed is None:
-            raise HTTPException(status_code=401, detail="Refresh token просрочен/невалиден, нужна повторная авторизация")
-        # Можно добавить заголовок с новым access_token для фронта
-        raise HTTPException(
-            status_code=401,
-            detail="Access token обновлён, используйте новый токен",
-            headers={"X-New-Access-Token": refreshed}
-        )
+        raise HTTPException(status_code=401, detail="Access token expired. try to refresh")
+    except (jwt.DecodeError, KeyError) as e:
+        logger.warning(f"Invalid access token: {e}")
+        raise HTTPException(status_code=401, detail="Некорректный access token")
     except Exception as e:
-        return None
+        logger.error(f"Неизвестная ошибка в get_current_user: {e}")
+        raise HTTPException(status_code=500, detail="Ошибка сервера авторизации")
+
 
 async def get_current_admin(request: Request, token: str = Depends(oauth2_scheme)):
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Нет access token")
     try:
         payload = decode_access_token(token)
         admin_id = payload["admin_id"]
         admin = await admin_crud.get_admin(admin_id)
+        if admin is None:
+            logger.warning(f"Admin not found for id {admin_id}")
+            return None
         return admin
     except jwt.ExpiredSignatureError:
-        refresh_token = request.cookies.get("refresh_token")
-        if not refresh_token:
-            raise HTTPException(status_code=401, detail="Refresh token отсутствует, нужна повторная авторизация")
-        refreshed = await user_crud.refresh_access_token(refresh_token)
-        if refreshed is None:
-            raise HTTPException(status_code=401, detail="Refresh token просрочен/невалиден, нужна повторная авторизация")
-        raise HTTPException(
-            status_code=401,
-            detail="Access token обновлён, используйте новый токен",
-            headers={"X-New-Access-Token": refreshed}
-        )
-    except Exception:
-        return None
+        raise HTTPException(status_code=401, detail="Access token expired. try to refresh")
+    except (jwt.DecodeError, KeyError) as e:
+        logger.warning(f"Invalid access token: {e}")
+        raise HTTPException(status_code=401, detail="Некорректный access token")
+    except Exception as e:
+        logger.error(f"Неизвестная ошибка в get_current_user: {e}")
+        raise HTTPException(status_code=500, detail="Ошибка сервера авторизации")
 
 async def user_owner_or_admin(user_id: int,user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:

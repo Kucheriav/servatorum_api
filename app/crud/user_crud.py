@@ -135,7 +135,6 @@ class UserCRUD:
     async def create_refresh_token(self, user_id: int, session):
         await session.execute(delete(UserToken).where(UserToken.user_id == user_id))
         await session.commit()
-
         refresh_token = generate_refresh_token()
         valid_before = get_refresh_token_expiry()
         user_token = UserToken(access_token=None, refresh_token=refresh_token, valid_before=valid_before, user_id=user_id)
