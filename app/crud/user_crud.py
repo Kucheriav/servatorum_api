@@ -1,3 +1,4 @@
+from sqlalchemy import delete
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 
@@ -132,6 +133,9 @@ class UserCRUD:
 
     @connection
     async def create_refresh_token(self, user_id: int, session):
+        await session.execute(delete(UserToken).where(UserToken.user_id == user_id))
+        await session.commit()
+
         refresh_token = generate_refresh_token()
         valid_before = get_refresh_token_expiry()
         user_token = UserToken(access_token=None, refresh_token=refresh_token, valid_before=valid_before, user_id=user_id)
@@ -149,9 +153,9 @@ class UserCRUD:
         token_obj = token_obj.first()
         if not token_obj:
             raise NotFoundError('Refresh_token', refresh_token)
-        elif token_obj[0].valid_before < datetime.now():
+        elif token_obj.valid_before < datetime.now():
             raise RefreshTokenExpired('RefreshTokenExpired')
-        user_id = token_obj[0].user_id
+        user_id = token_obj.user_id
         new_access = generate_user_access_token(user_id)
         return new_access
 

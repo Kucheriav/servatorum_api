@@ -59,7 +59,6 @@ class UserMeta(Base):
 class UserToken(Base):
     __tablename__ = "user_tokens"
     id = Column(Integer, primary_key=True)
-    access_token = Column(String)
     refresh_token = Column(String)
     valid_before = Column(DateTime)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'))
