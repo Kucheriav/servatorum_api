@@ -123,12 +123,12 @@ async def delete_user(user_id: int, current_actor=Depends(user_owner_or_admin)):
 
 @router.post("/token/refresh")
 async def refresh_token(token_refresh: TokenRefresh):
-    logger.info(f"Request received to refresh token: {token_refresh}")
+    logger.info(f"Request received to refresh token: {token_refresh.refresh_token_in}")
     try:
-        new_access_token = await user_crud.refresh_access_token(token_refresh)
+        new_access_token = await user_crud.refresh_access_token(token_refresh.refresh_token_in)
         return {"access_token": new_access_token}
     except NotFoundError:
-        logger.warning(f"Token {token_refresh} not found")
+        logger.warning(f"Token {token_refresh.refresh_token_in} not found")
         raise HTTPException(status_code=404, detail="Token not found")
     except RefreshTokenExpired:
         raise HTTPException(status_code=401, detail="Expired refresh token")
