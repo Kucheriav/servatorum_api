@@ -40,7 +40,7 @@ async def get_company(company_id: int):
 
 @router.patch("/patch_company/{company_id}", response_model=CompanyResponse)
 async def patch_company(company_id: int, company_params_to_patch: CompanyPatch, current_actor=Depends(company_owner_or_admin)):
-    logger.info(f"{current_actor.phone} patches company with ID: {company_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone} patches user with ID: {company_id}")
     try:
         patched_company = await company_crud.patch_company(company_id=company_id,
                                                                       params=company_params_to_patch)
@@ -55,7 +55,7 @@ async def patch_company(company_id: int, company_params_to_patch: CompanyPatch, 
 
 @router.delete("/delete_company/{company_id}")
 async def delete_company(company_id: int, current_actor=Depends(company_owner_or_admin)):
-    logger.info(f"{current_actor.phone} deletes company with ID: {company_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone}  deletes company with ID: {company_id}")
     try:
         await company_crud.delete_company(company_id=company_id)
         return {"message": "Company deleted"}

@@ -39,7 +39,7 @@ async def get_foundation(foundation_id: int):
 
 @router.patch("/patch_foundation/{foundation_id}", response_model=FoundationResponse)
 async def patch_foundation(foundation_id: int, foundation_to_patch: FoundationPatch, current_actor=Depends(foundation_owner_or_admin)):
-    logger.info(f"{current_actor.phone} patches foundation with ID: {foundation_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone} patches foundation with ID: {foundation_id}")
     try:
         patched_foundation = await foundation_crud.patch_foundation(foundation_id=foundation_id,
                                                                     params=foundation_to_patch)
@@ -53,7 +53,7 @@ async def patch_foundation(foundation_id: int, foundation_to_patch: FoundationPa
 
 @router.post("/foundation/{foundation_id}/add_account", response_model=FoundationAccountDetailsAddResponse)
 async def add_account_details(foundation_id: int, details: FoundationAccountDetailsAdd, current_actor=Depends(foundation_owner_or_admin)):
-    logger.info(f"{current_actor.phone} adds a new account to a foundation with ID: {foundation_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone} adds a new account to a foundation with ID: {foundation_id}")
     try:
         return await foundation_crud.add_account_details(foundation_id, details)
     except Exception as e:
@@ -62,7 +62,7 @@ async def add_account_details(foundation_id: int, details: FoundationAccountDeta
 
 @router.delete("/delete_foundation/{foundation_id}")
 async def delete_foundation(foundation_id: int, current_actor=Depends(foundation_owner_or_admin)):
-    logger.info(f"{current_actor.phone} deletes foundation with ID: {foundation_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone} deletes foundation with ID: {foundation_id}")
     try:
         await foundation_crud.delete_foundation(foundation_id=foundation_id)
         return {"message": "Foundation deleted"}

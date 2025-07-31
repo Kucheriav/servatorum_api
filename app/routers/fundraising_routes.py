@@ -57,7 +57,7 @@ async def get_fundraisings(page: int = 1, page_size: int = 10):
 
 @router.patch("/patch_fundraising/{fundraising_id}", response_model=FundraisingResponce)
 async def patch_fundraising(fundraising_id: int, fundraising_params_to_patch: FundraisingPatch, current_actor=Depends(fundraising_owner_or_admin)):
-    logger.info(f"{current_actor.phone} patches fundraising with ID: {fundraising_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone}  patches fundraising with ID: {fundraising_id}")
     patched_fundraising = await fundraising_crud.patch_fundraising(fundraising_id=fundraising_id,
                                                                    params=fundraising_params_to_patch)
     if patched_fundraising:
@@ -69,7 +69,7 @@ async def patch_fundraising(fundraising_id: int, fundraising_params_to_patch: Fu
 
 @router.delete("/delete_fundraising/{fundraising_id}")
 async def delete_fundraising(fundraising_id: int, current_actor=Depends(fundraising_owner_or_admin)):
-    logger.info(f"{current_actor.phone} deletes fundraising with ID: {fundraising_id}")
+    logger.info(f"{current_actor['role']} {current_actor['current_actor'].phone}  deletes fundraising with ID: {fundraising_id}")
     if await fundraising_crud.delete_fundraising(fundraising_id=fundraising_id):
         logger.info(f"Fundraising with ID {fundraising_id} deleted successfully")
         return {"message": "Fundraising deleted"}

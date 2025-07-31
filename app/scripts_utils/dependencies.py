@@ -78,10 +78,10 @@ async def user_owner_or_admin(user_id: int,user: User = Depends(get_current_user
 
 async def company_owner_or_admin(company_id: int, current_user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:
-        return {"admin": admin}
+        return {"role": 'admin', 'current_actor': admin}
     user = await user_crud.get_user_by_entity(company_id, 'company')
     if user is not None and user.id == current_user.id:
-        return {"user": user}
+        return {"role": 'user', 'current_actor': user}
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Operation permitted only for owner or admin"
@@ -89,10 +89,10 @@ async def company_owner_or_admin(company_id: int, current_user: User = Depends(g
 
 async def foundation_owner_or_admin(foundation_id: int, current_user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:
-        return {"admin": admin}
+        return {"role": 'admin', 'current_actor': admin}
     user = await user_crud.get_user_by_entity(foundation_id, 'foundation')
     if user is not None and user.id == current_user.id:
-        return {"user": user}
+        return {"role": 'user', 'current_actor': user}
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Operation permitted only for owner or admin"
@@ -100,10 +100,10 @@ async def foundation_owner_or_admin(foundation_id: int, current_user: User = Dep
 
 async def fundraising_owner_or_admin(fundraising_id: int, current_user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:
-        return {"admin": admin}
+        return {"role": 'admin', 'current_actor': admin}
     user = await fundraising_crud.get_fundraising_owner(fundraising_id)
     if user is not None and user.id == current_user.id:
-        return {"user": user}
+        return {"role": 'user', 'current_actor': user}
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Operation permitted only for owner or admin"
@@ -111,16 +111,16 @@ async def fundraising_owner_or_admin(fundraising_id: int, current_user: User = D
 
 async def wallet_owner_or_admin(wallet_id: int, current_user=Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:
-        return {"admin": admin}
+        return {"role": 'admin', 'current_actor': admin}
     user = await wallet_crud.get_user_by_wallet_id(wallet_id)
     if user.id != current_user.id:
         raise HTTPException(status_code=403, detail="Нет доступа к этому кошельку")
-    return {"user": user}
+    return {"role": 'user', 'current_actor': user}
 
 
 async def transaction_users_or_admin(transaction_id: int, current_user: User = Depends(get_current_user), admin: Admin = Depends(get_current_admin)):
     if admin is not None:
-        return {"admin": admin}
+        return {"role": 'admin', 'current_actor': admin}
     tx = await transaction_crud.get_transaction(transaction_id)
     allowed_wallet_ids = []
     if tx.sender_wallet_id:
@@ -131,7 +131,7 @@ async def transaction_users_or_admin(transaction_id: int, current_user: User = D
         try:
             user = await wallet_crud.get_user_by_wallet_id(wallet_id)
             if user.id == current_user.id:
-                return {"user": user}
+                return {"role": 'user', 'current_actor': user}
         except HTTPException:
             continue
     raise HTTPException(status_code=403, detail="Нет доступа к этой транзакции")
