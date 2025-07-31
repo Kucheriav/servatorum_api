@@ -115,3 +115,6 @@ class UserPatch(BaseModel):
             elif key == 'balance':
                 raise ValueError(f"Can't patch balance")
         return v
+
+class TokenRefresh(BaseModel):
+    refresh_token_in: str
